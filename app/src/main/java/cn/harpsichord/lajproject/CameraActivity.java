@@ -1,0 +1,162 @@
+package cn.harpsichord.lajproject;
+
+import android.Manifest;
+import android.app.Activity;
+import android.content.Context;
+import android.content.pm.PackageManager;
+import android.graphics.SurfaceTexture;
+import android.hardware.camera2.CameraAccessException;
+import android.hardware.camera2.CameraCaptureSession;
+import android.hardware.camera2.CameraCharacteristics;
+import android.hardware.camera2.CameraDevice;
+import android.hardware.camera2.CameraManager;
+import android.hardware.camera2.CaptureRequest;
+import android.hardware.camera2.CaptureResult;
+import android.hardware.camera2.TotalCaptureResult;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.HandlerThread;
+import android.util.Log;
+import android.view.Surface;
+import android.view.TextureView;
+
+import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+
+import java.util.Arrays;
+
+
+public class CameraActivity extends Activity {
+
+    private static final String TAG = "CameraActivity";
+    private Handler handler;
+    private TextureView textureView;
+    private CaptureRequest.Builder mPreviewBuilder;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_camera);
+
+        HandlerThread handlerThread = new HandlerThread("CAMERA2");
+        handlerThread.start();
+
+        handler = new Handler(handlerThread.getLooper());
+
+        textureView = (TextureView) findViewById(R.id.camera_texture_view);
+        assert textureView != null;
+        textureView.setSurfaceTextureListener(surfaceTextureListener);
+
+    }
+
+    private final TextureView.SurfaceTextureListener surfaceTextureListener = new TextureView.SurfaceTextureListener() {
+        @Override
+        public void onSurfaceTextureAvailable(@NonNull SurfaceTexture surface, int width, int height) {
+
+            CameraManager cameraManager = (CameraManager) getSystemService(CAMERA_SERVICE);
+
+            try {
+                String[] cameraList = cameraManager.getCameraIdList();
+                CameraCharacteristics cameraCharacteristics = cameraManager.getCameraCharacteristics(cameraList[0]);
+                Integer integer = cameraCharacteristics.get(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL);
+                Log.d(TAG, "SUPPORTED_HARDWARE_LEVEL = " + integer);
+                if (ActivityCompat.checkSelfPermission(CameraActivity.this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+                    Log.e(TAG, "Ask Camera Permission!");
+                    ActivityCompat.requestPermissions(CameraActivity.this, new String[]{Manifest.permission.CAMERA}, 1);
+                    return;
+                }
+                Log.d(TAG, "Start to open camera.");
+                cameraManager.openCamera(cameraList[0], stateCallback, handler);
+            } catch (CameraAccessException e) {
+                Log.e(TAG, "CameraAccessException!");
+                e.printStackTrace();
+            }
+
+        }
+
+        @Override
+        public void onSurfaceTextureSizeChanged(@NonNull SurfaceTexture surface, int width, int height) {
+
+        }
+
+        @Override
+        public boolean onSurfaceTextureDestroyed(@NonNull SurfaceTexture surface) {
+            return false;
+        }
+
+        @Override
+        public void onSurfaceTextureUpdated(@NonNull SurfaceTexture surface) {
+
+        }
+    };
+
+    private final CameraDevice.StateCallback stateCallback = new CameraDevice.StateCallback() {
+        @Override
+        public void onOpened(@NonNull CameraDevice camera) {
+            try {
+                               startPreview(camera);
+                           } catch (CameraAccessException e) {
+                               e.printStackTrace();
+                           }
+        }
+
+        @Override
+        public void onDisconnected(@NonNull CameraDevice camera) {
+
+        }
+
+        @Override
+        public void onError(@NonNull CameraDevice camera, int error) {
+
+        }
+    };
+
+    private void startPreview(CameraDevice cameraDevice) throws CameraAccessException {
+        SurfaceTexture surfaceTexture = textureView.getSurfaceTexture();
+        surfaceTexture.setDefaultBufferSize(textureView.getWidth(), textureView.getHeight());
+        Surface surface = new Surface(surfaceTexture);
+        try {
+            //CameraRequest表示一次捕获请求，用来对z照片的各种参数设置，比如对焦模式、曝光模式等。CameraRequest.Builder用来生成CameraRequest对象
+            mPreviewBuilder = cameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_STILL_CAPTURE);
+             } catch (CameraAccessException e) {
+            e.printStackTrace();
+            }
+        mPreviewBuilder.addTarget(surface);
+        cameraDevice.createCaptureSession(Arrays.asList(surface), mSessionStateCallback, handler);
+    }
+
+    private final CameraCaptureSession.StateCallback mSessionStateCallback = new CameraCaptureSession.StateCallback() {
+    @Override
+    public void onConfigured(CameraCaptureSession session) {
+          Log.e(TAG,"相机创建成功！");
+          try {
+                  session.capture(mPreviewBuilder.build(), mSessionCaptureCallback, handler);//拍照
+                  session.setRepeatingRequest(mPreviewBuilder.build(), mSessionCaptureCallback, handler);//返回结果
+              } catch (CameraAccessException e) {
+                  e.printStackTrace();
+                  Log.e(TAG,"这里异常");
+              }
+      }
+
+     @Override
+    public void onConfigureFailed(CameraCaptureSession session) {
+               Log.e(TAG,"相机创建失败！");
+           }
+};
+
+
+    //CameraCaptureSession.CaptureCallback监听拍照过程
+private CameraCaptureSession.CaptureCallback mSessionCaptureCallback = new CameraCaptureSession.CaptureCallback() {
+    @Override
+    public void onCaptureCompleted(CameraCaptureSession session, CaptureRequest request, TotalCaptureResult result) {
+                  Log.e(TAG,"这里接受到数据"+result.toString());
+              }
+
+          @Override
+  public void onCaptureProgressed(CameraCaptureSession session, CaptureRequest request, CaptureResult partialResult){
+
+              }};
+
+
+}
