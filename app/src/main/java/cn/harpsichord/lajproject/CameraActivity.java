@@ -2,7 +2,6 @@ package cn.harpsichord.lajproject;
 
 import android.Manifest;
 import android.app.Activity;
-import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.SurfaceTexture;
 import android.hardware.camera2.CameraAccessException;
@@ -19,12 +18,12 @@ import android.os.HandlerThread;
 import android.util.Log;
 import android.view.Surface;
 import android.view.TextureView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 
-import java.util.Arrays;
+import java.util.Collections;
 
 
 public class CameraActivity extends Activity {
@@ -38,16 +37,22 @@ public class CameraActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_camera);
+        Toast.makeText(this, "还有点问题待修复...", Toast.LENGTH_SHORT).show();
+        finish();
 
         HandlerThread handlerThread = new HandlerThread("CAMERA2");
         handlerThread.start();
 
         handler = new Handler(handlerThread.getLooper());
 
-        textureView = (TextureView) findViewById(R.id.camera_texture_view);
+        textureView = findViewById(R.id.camera_texture_view);
         assert textureView != null;
-        textureView.setSurfaceTextureListener(surfaceTextureListener);
+    }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        textureView.setSurfaceTextureListener(surfaceTextureListener);
     }
 
     private final TextureView.SurfaceTextureListener surfaceTextureListener = new TextureView.SurfaceTextureListener() {
@@ -77,7 +82,6 @@ public class CameraActivity extends Activity {
 
         @Override
         public void onSurfaceTextureSizeChanged(@NonNull SurfaceTexture surface, int width, int height) {
-
         }
 
         @Override
@@ -95,20 +99,22 @@ public class CameraActivity extends Activity {
         @Override
         public void onOpened(@NonNull CameraDevice camera) {
             try {
-                               startPreview(camera);
-                           } catch (CameraAccessException e) {
-                               e.printStackTrace();
-                           }
+                startPreview(camera);
+            } catch (CameraAccessException e) {
+                e.printStackTrace();
+            }
         }
 
         @Override
         public void onDisconnected(@NonNull CameraDevice camera) {
-
+            Log.e(TAG, "onDisconnected");
+            camera.close();
         }
 
         @Override
         public void onError(@NonNull CameraDevice camera, int error) {
-
+            Log.e(TAG, "onError");
+            camera.close();
         }
     };
 
@@ -119,44 +125,41 @@ public class CameraActivity extends Activity {
         try {
             //CameraRequest表示一次捕获请求，用来对z照片的各种参数设置，比如对焦模式、曝光模式等。CameraRequest.Builder用来生成CameraRequest对象
             mPreviewBuilder = cameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_STILL_CAPTURE);
-             } catch (CameraAccessException e) {
+        } catch (CameraAccessException e) {
             e.printStackTrace();
-            }
+        }
         mPreviewBuilder.addTarget(surface);
-        cameraDevice.createCaptureSession(Arrays.asList(surface), mSessionStateCallback, handler);
+        cameraDevice.createCaptureSession(Collections.singletonList(surface), mSessionStateCallback, handler);
     }
 
     private final CameraCaptureSession.StateCallback mSessionStateCallback = new CameraCaptureSession.StateCallback() {
-    @Override
-    public void onConfigured(CameraCaptureSession session) {
-          Log.e(TAG,"相机创建成功！");
-          try {
-                  session.capture(mPreviewBuilder.build(), mSessionCaptureCallback, handler);//拍照
-                  session.setRepeatingRequest(mPreviewBuilder.build(), mSessionCaptureCallback, handler);//返回结果
-              } catch (CameraAccessException e) {
-                  e.printStackTrace();
-                  Log.e(TAG,"这里异常");
-              }
-      }
+        @Override
+        public void onConfigured(CameraCaptureSession session) {
+            Log.e(TAG,"相机创建成功！");
+            try {
+                session.capture(mPreviewBuilder.build(), mSessionCaptureCallback, handler);//拍照
+                session.setRepeatingRequest(mPreviewBuilder.build(), mSessionCaptureCallback, handler);//返回结果
+            } catch (CameraAccessException e) {
+                e.printStackTrace();
+                Log.e(TAG,"这里异常");
+            }
+          }
 
-     @Override
-    public void onConfigureFailed(CameraCaptureSession session) {
-               Log.e(TAG,"相机创建失败！");
-           }
-};
+        @Override
+        public void onConfigureFailed(CameraCaptureSession session) {
+            Log.e(TAG,"相机创建失败！");
+        }
+    };
 
 
     //CameraCaptureSession.CaptureCallback监听拍照过程
-private CameraCaptureSession.CaptureCallback mSessionCaptureCallback = new CameraCaptureSession.CaptureCallback() {
-    @Override
-    public void onCaptureCompleted(CameraCaptureSession session, CaptureRequest request, TotalCaptureResult result) {
-                  Log.e(TAG,"这里接受到数据"+result.toString());
-              }
+    private final CameraCaptureSession.CaptureCallback mSessionCaptureCallback = new CameraCaptureSession.CaptureCallback() {
+        @Override
+        public void onCaptureCompleted(CameraCaptureSession session, CaptureRequest request, TotalCaptureResult result) {
+        }
 
-          @Override
-  public void onCaptureProgressed(CameraCaptureSession session, CaptureRequest request, CaptureResult partialResult){
-
-              }};
-
-
+        @Override
+        public void onCaptureProgressed(CameraCaptureSession session, CaptureRequest request, CaptureResult partialResult){
+        }
+    };
 }
