@@ -56,12 +56,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
-        task = new FakeLongTask();
-    }
-
-    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
@@ -86,16 +80,23 @@ public class MainActivity extends AppCompatActivity {
 
         Button downloadButton = findViewById(R.id.download_button);
         downloadButton.setOnClickListener(v -> {
+            cancelTask();
+            task = new FakeLongTask();
             task.execute();
         });
     }
 
+    private void cancelTask() {
+        if (task == null) {return;}
+        if (task.isCancelled()) {return;}
+        task.cancel(true);
+    }
 
     @Override
     protected void onPause() {
         super.onPause();
         Log.e(TAG, "onPause");
-        task.cancel(true);
+        cancelTask();
     }
 }
 
