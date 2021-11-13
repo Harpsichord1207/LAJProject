@@ -18,6 +18,8 @@ import android.os.HandlerThread;
 import android.util.Log;
 import android.view.Surface;
 import android.view.TextureView;
+import android.view.View;
+import android.widget.Button;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -37,8 +39,6 @@ public class CameraActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_camera);
-        Toast.makeText(this, "还有点问题待修复...", Toast.LENGTH_SHORT).show();
-        finish();
 
         HandlerThread handlerThread = new HandlerThread("CAMERA2");
         handlerThread.start();
@@ -46,7 +46,15 @@ public class CameraActivity extends Activity {
         handler = new Handler(handlerThread.getLooper());
 
         textureView = findViewById(R.id.camera_texture_view);
-        assert textureView != null;
+
+        Button clkBtn = findViewById(R.id.button_in_camera);
+        clkBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(CameraActivity.this, "暂时没什么用", Toast.LENGTH_SHORT).show();
+            }
+        });
+
     }
 
     @Override
@@ -123,7 +131,6 @@ public class CameraActivity extends Activity {
         surfaceTexture.setDefaultBufferSize(textureView.getWidth(), textureView.getHeight());
         Surface surface = new Surface(surfaceTexture);
         try {
-            //CameraRequest表示一次捕获请求，用来对z照片的各种参数设置，比如对焦模式、曝光模式等。CameraRequest.Builder用来生成CameraRequest对象
             mPreviewBuilder = cameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_STILL_CAPTURE);
         } catch (CameraAccessException e) {
             e.printStackTrace();
@@ -135,13 +142,11 @@ public class CameraActivity extends Activity {
     private final CameraCaptureSession.StateCallback mSessionStateCallback = new CameraCaptureSession.StateCallback() {
         @Override
         public void onConfigured(CameraCaptureSession session) {
-            Log.e(TAG,"相机创建成功！");
             try {
-                session.capture(mPreviewBuilder.build(), mSessionCaptureCallback, handler);//拍照
-                session.setRepeatingRequest(mPreviewBuilder.build(), mSessionCaptureCallback, handler);//返回结果
+                session.capture(mPreviewBuilder.build(), mSessionCaptureCallback, handler);
+                session.setRepeatingRequest(mPreviewBuilder.build(), mSessionCaptureCallback, handler);
             } catch (CameraAccessException e) {
                 e.printStackTrace();
-                Log.e(TAG,"这里异常");
             }
           }
 
@@ -151,8 +156,6 @@ public class CameraActivity extends Activity {
         }
     };
 
-
-    //CameraCaptureSession.CaptureCallback监听拍照过程
     private final CameraCaptureSession.CaptureCallback mSessionCaptureCallback = new CameraCaptureSession.CaptureCallback() {
         @Override
         public void onCaptureCompleted(CameraCaptureSession session, CaptureRequest request, TotalCaptureResult result) {
