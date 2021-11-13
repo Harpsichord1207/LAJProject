@@ -48,12 +48,7 @@ public class CameraActivity extends Activity {
         textureView = findViewById(R.id.camera_texture_view);
 
         Button clkBtn = findViewById(R.id.button_in_camera);
-        clkBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(CameraActivity.this, "暂时没什么用", Toast.LENGTH_SHORT).show();
-            }
-        });
+        clkBtn.setOnClickListener(v -> Toast.makeText(CameraActivity.this, "暂时没什么用", Toast.LENGTH_SHORT).show());
 
     }
 
