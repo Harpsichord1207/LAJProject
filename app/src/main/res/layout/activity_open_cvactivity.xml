@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".OpenCVActivity">
+
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_gravity="center"
+        android:layout_width="400dp"
+        android:src="@drawable/d1"
+        android:padding="10dp"
+        android:layout_height="400dp"/>
+
+    <Button
+        android:id="@+id/get1_image"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Image1" />
+
+    <Button
+        android:id="@+id/get2_image"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Image2" />
+
+    <Button
+        android:id="@+id/process1_image"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="AND" />
+
+    <Button
+        android:id="@+id/process2_image"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="OR" />
+
+
+</LinearLayout>

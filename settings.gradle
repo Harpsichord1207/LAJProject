@@ -8,3 +8,4 @@ dependencyResolutionManagement {
 }
 rootProject.name = "LAJProject"
 include ':app'
+include ':opencvsdk' // https://stackoverflow.com/questions/68862846/i-cant-import-module-from-source-the-finish-button-is-off

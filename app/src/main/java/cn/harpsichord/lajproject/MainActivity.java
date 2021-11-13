@@ -9,6 +9,9 @@ import android.util.Log;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import org.opencv.android.OpenCVLoader;
 
 import java.util.Random;
 
@@ -83,6 +86,16 @@ public class MainActivity extends AppCompatActivity {
             cancelTask();
             task = new FakeLongTask();
             task.execute();
+        });
+
+        Button opencvBtn = findViewById(R.id.load_opencv);
+        opencvBtn.setOnClickListener(v -> {
+            if (OpenCVLoader.initDebug()) {
+                Intent intent = new Intent(this, OpenCVActivity.class);
+                startActivity(intent);
+            } else {
+                Toast.makeText(this, "Failed to init OpenCV!", Toast.LENGTH_SHORT).show();
+            }
         });
     }
 

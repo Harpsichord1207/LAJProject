@@ -39,4 +39,10 @@
         android:layout_margin="10dp"
         style="@style/Widget.AppCompat.ProgressBar.Horizontal" />
 
+    <Button
+        android:id="@+id/load_opencv"
+        android:text="opencv"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
 </LinearLayout>
