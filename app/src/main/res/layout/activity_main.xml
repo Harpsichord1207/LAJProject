@@ -41,7 +41,13 @@
 
     <Button
         android:id="@+id/load_opencv"
-        android:text="opencv"
+        android:text="test-opencv"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <Button
+        android:id="@+id/opencv_static_image"
+        android:text="opencv-static-image"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 

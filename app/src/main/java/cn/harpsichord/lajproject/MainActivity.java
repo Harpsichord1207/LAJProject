@@ -97,6 +97,13 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(this, "Failed to init OpenCV!", Toast.LENGTH_SHORT).show();
             }
         });
+
+        Button face1Btn = findViewById(R.id.opencv_static_image);
+        face1Btn.setOnClickListener(v -> {
+            Intent intent = new Intent(this, StaticFaceActivity.class);
+            startActivity(intent);
+        });
+
     }
 
     private void cancelTask() {
