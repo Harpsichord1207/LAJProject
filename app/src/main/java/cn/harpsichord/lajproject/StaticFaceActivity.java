@@ -54,7 +54,7 @@ public class StaticFaceActivity extends AppCompatActivity {
         });
     }
 
-    private CascadeClassifier getClassifier() throws IOException {
+    public CascadeClassifier getClassifier() throws IOException {
         InputStream inputStream = getResources().openRawResource(R.raw.lbpcascade_frontalface_improved);
         File cascade = getDir("cascade", Context.MODE_PRIVATE);  // TODO why?
         File file = new File(cascade, "lbpcascade_frontalface_improved.xml");
@@ -84,7 +84,7 @@ public class StaticFaceActivity extends AppCompatActivity {
         for (Rect rect: facesList) {
             Imgproc.rectangle(matDst, rect.tl(), rect.br(), new Scalar(255, 0, 0, 255), 4);
         }
-        Imgproc.cvtColor(matDst, matDst, Imgproc.COLOR_BGR2RGB); // BGT -> RGB
+        Imgproc.cvtColor(matDst, matDst, Imgproc.COLOR_BGR2RGB); // BGR -> RGB
         Bitmap bitmap = Bitmap.createBitmap(matDst.width(), matDst.height(), Bitmap.Config.ARGB_8888);
         Utils.matToBitmap(matDst, bitmap);
         matSrc.release();
