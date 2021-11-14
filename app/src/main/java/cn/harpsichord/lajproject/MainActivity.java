@@ -104,6 +104,12 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
+        Button face2Btn = findViewById(R.id.opencv_camera);
+        face2Btn.setOnClickListener(v -> {
+            Intent intent = new Intent(this, OpenCVCameraActivity.class);
+            startActivity(intent);
+        });
+
     }
 
     private void cancelTask() {
