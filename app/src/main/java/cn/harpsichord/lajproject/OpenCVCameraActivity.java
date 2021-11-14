@@ -117,15 +117,13 @@ public class OpenCVCameraActivity extends AppCompatActivity implements CameraBri
         } else {
             return detectFace(mRgba);
         }
-
     }
 
     private Mat detectFace(Mat matSrc) {
-
         Mat matGray = new Mat();
         Imgproc.cvtColor(matSrc, matGray, Imgproc.COLOR_BGRA2GRAY);
         MatOfRect faces = new MatOfRect();
-        cascadeClassifier.detectMultiScale(matGray, faces, 1.1, 3, 0, minSize, maxSize);
+        cascadeClassifier.detectMultiScale(matGray, faces, 1.2, 3, 0, minSize, maxSize);
         List<Rect> facesList = faces.toList();
         for (Rect rect: facesList) {
             Imgproc.rectangle(matSrc, rect.tl(), rect.br(), new Scalar(255, 0, 0, 255), 5);
