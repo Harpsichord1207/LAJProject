@@ -1,29 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout android:layout_height="match_parent"
     android:layout_width="match_parent"
-    android:orientation="vertical"
+    android:orientation="horizontal"
+    android:background="#000"
     xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <org.opencv.android.JavaCameraView
+    <org.opencv.android.JavaCamera2View
         android:id="@+id/JavaCamera2View"
-        android:layout_gravity="center_horizontal"
-        android:layout_width="400dp"
-        android:layout_height="0dp"
-        android:layout_weight="1">
-    </org.opencv.android.JavaCameraView>
-
-    <Button
-        android:id="@+id/detect"
-        android:text="detect"
-        android:layout_gravity="center_horizontal"
-        android:layout_width="400dp"
-        android:layout_height="wrap_content" />
+        android:layout_weight="1"
+        android:layout_width="0dp"
+        android:layout_height="match_parent" >
+    </org.opencv.android.JavaCamera2View>
 
     <Button
         android:id="@+id/switch_button"
-        android:text="switch"
-        android:layout_gravity="center_horizontal"
-        android:layout_width="400dp"
-        android:layout_height="wrap_content" />
+        android:layout_gravity="center_vertical"
+        android:text="S"
+        android:layout_width="48dp"
+        android:layout_height="48dp" />
 
 </LinearLayout>

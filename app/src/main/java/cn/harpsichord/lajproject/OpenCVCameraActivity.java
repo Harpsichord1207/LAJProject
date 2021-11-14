@@ -8,6 +8,7 @@ import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.view.View;
+import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.Toast;
@@ -20,7 +21,7 @@ import org.opencv.core.Mat;
 
 public class OpenCVCameraActivity extends AppCompatActivity implements CameraBridgeViewBase.CvCameraViewListener2, View.OnClickListener {
 
-    private JavaCameraView javaCameraView;
+    private JavaCamera2View javaCameraView;
     private boolean isFrontCamera;
     private Mat mRgba;
 

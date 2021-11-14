@@ -13,6 +13,7 @@
         android:theme="@style/Theme.LAJProject">
         <activity
             android:name=".OpenCVCameraActivity"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"
             android:exported="false" />
         <activity
             android:name=".StaticFaceActivity"
