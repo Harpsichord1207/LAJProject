@@ -17,7 +17,9 @@ import org.opencv.android.CameraBridgeViewBase;
 import org.opencv.android.JavaCamera2View;
 import org.opencv.android.JavaCameraView;
 import org.opencv.android.OpenCVLoader;
+import org.opencv.core.Core;
 import org.opencv.core.Mat;
+import org.opencv.imgproc.Imgproc;
 
 public class OpenCVCameraActivity extends AppCompatActivity implements CameraBridgeViewBase.CvCameraViewListener2, View.OnClickListener {
 
@@ -49,6 +51,8 @@ public class OpenCVCameraActivity extends AppCompatActivity implements CameraBri
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, 1);
         } else {
             javaCameraView.setCameraPermissionGranted();
+            // 一进来就开启摄像头
+            javaCameraView.enableView();
         }
     }
 
@@ -71,11 +75,19 @@ public class OpenCVCameraActivity extends AppCompatActivity implements CameraBri
     @Override
     public Mat onCameraFrame(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
         mRgba = inputFrame.rgba();
-        return mRgba;
+        if (isFrontCamera) {
+            // 如果是前置摄像头，做一个镜像翻转
+            Mat flipMat = new Mat();
+            Core.flip(mRgba, flipMat, 1);
+            return flipMat;
+        } else {
+            return mRgba;
+        }
     }
 
     @Override
     public void onClick(View v) {
+        javaCameraView.disableView();  // 点击的瞬间disable，避免有反的图片残影
         if (v.getId() == R.id.switch_button) {
             if (isFrontCamera) {
                 javaCameraView.setCameraIndex(CameraBridgeViewBase.CAMERA_ID_BACK);
@@ -85,7 +97,6 @@ public class OpenCVCameraActivity extends AppCompatActivity implements CameraBri
                 isFrontCamera = true;
             }
         }
-        javaCameraView.disableView();
         javaCameraView.enableView();
     }
 }
