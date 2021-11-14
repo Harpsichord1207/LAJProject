@@ -109,23 +109,18 @@ public class OpenCVCameraActivity extends AppCompatActivity implements CameraBri
     @Override
     public Mat onCameraFrame(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
         mRgba = inputFrame.rgba();
-        try {
-            if (isFrontCamera) {
-                // 如果是前置摄像头，做一个镜像翻转
-                Mat flipMat = new Mat();
-                Core.flip(mRgba, flipMat, 1);
-                return detectFace(flipMat);
-            } else {
-                return detectFace(mRgba);
-            }
-        } catch (IOException e) {
-            Log.e(TAG, "Failed to detect face!");
-            return mRgba;
+        if (isFrontCamera) {
+            // 如果是前置摄像头，做一个镜像翻转
+            Mat flipMat = new Mat();
+            Core.flip(mRgba, flipMat, 1);
+            return detectFace(flipMat);
+        } else {
+            return detectFace(mRgba);
         }
 
     }
 
-    private Mat detectFace(Mat matSrc) throws IOException {
+    private Mat detectFace(Mat matSrc) {
 
         Mat matGray = new Mat();
         Imgproc.cvtColor(matSrc, matGray, Imgproc.COLOR_BGRA2GRAY);
