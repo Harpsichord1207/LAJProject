@@ -97,7 +97,7 @@ public class OpenCVCameraActivity extends AppCompatActivity implements CameraBri
     @Override
     public void onCameraViewStarted(int width, int height) {
         mRgba = new Mat();
-        minSize = new Size((int) (width * 0.15f), (int) (height * 0.15f));
+        minSize = new Size(120, 120); // 越小越精确越卡
         maxSize = new Size();
     }
 
@@ -130,10 +130,10 @@ public class OpenCVCameraActivity extends AppCompatActivity implements CameraBri
         Mat matGray = new Mat();
         Imgproc.cvtColor(matSrc, matGray, Imgproc.COLOR_BGRA2GRAY);
         MatOfRect faces = new MatOfRect();
-        cascadeClassifier.detectMultiScale(matGray, faces, 1.1, 2, 2, minSize, maxSize);
+        cascadeClassifier.detectMultiScale(matGray, faces, 1.1, 3, 0, minSize, maxSize);
         List<Rect> facesList = faces.toList();
         for (Rect rect: facesList) {
-            Imgproc.rectangle(matSrc, rect.tl(), rect.br(), new Scalar(255, 0, 0, 255), 4);
+            Imgproc.rectangle(matSrc, rect.tl(), rect.br(), new Scalar(255, 0, 0, 255), 5);
         }
         return matSrc;
     }
