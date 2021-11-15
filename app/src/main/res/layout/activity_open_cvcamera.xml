@@ -26,6 +26,7 @@
 
     <Button
         android:id="@+id/disable_button"
+        android:textColor="#FF00FF00"
         android:layout_gravity="center|bottom"
         android:text="d"
         android:layout_width="48dp"

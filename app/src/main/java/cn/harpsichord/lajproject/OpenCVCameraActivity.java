@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -128,13 +129,23 @@ public class OpenCVCameraActivity extends AppCompatActivity implements CameraBri
     public Mat onCameraFrame(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
         mRgba = inputFrame.rgba();
         frameCount ++;
+
+        boolean detect = true;
+        if (disableDetect) {
+            detect = false;
+        }
+        if (frameCount % 3 != 0) {
+            // 如果开启了检测人脸，每3帧检测一次
+            detect = false;
+        }
+
         if (isFrontCamera) {
             // 如果是前置摄像头，做一个镜像翻转
             Mat flipMat = new Mat();
             Core.flip(mRgba, flipMat, 1);
-            return disableDetect? flipMat: detectFace(flipMat);
+            return detect? detectFace(flipMat): flipMat;
         } else {
-            return disableDetect? mRgba: detectFace(mRgba);
+            return detect? detectFace(mRgba): mRgba;
         }
     }
 
@@ -166,7 +177,16 @@ public class OpenCVCameraActivity extends AppCompatActivity implements CameraBri
         } else if (v.getId() == R.id.exit_button) {
             finish();
         } else if (v.getId() == R.id.disable_button) {
-            disableDetect = !disableDetect;
+            Button bv = (Button) v;
+            if (disableDetect) {
+                disableDetect = false;
+                bv.setText("D");
+                bv.setTextColor(Color.GREEN);
+            } else {
+                disableDetect = true;
+                bv.setTextColor(Color.RED);
+                bv.setText("E");
+            }
         }
     }
 
