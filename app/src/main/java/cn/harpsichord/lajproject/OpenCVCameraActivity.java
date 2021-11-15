@@ -9,11 +9,14 @@ import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import org.opencv.android.CameraBridgeViewBase;
@@ -36,6 +39,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
+import java.util.concurrent.Executors;
 
 public class OpenCVCameraActivity extends AppCompatActivity implements CameraBridgeViewBase.CvCameraViewListener2, View.OnClickListener {
 
@@ -46,6 +50,10 @@ public class OpenCVCameraActivity extends AppCompatActivity implements CameraBri
     private CascadeClassifier cascadeClassifier;
     private Size minSize;
     private Size maxSize;
+    private long frameCount;
+    private long startTs;
+    private TextView fpsText;
+    private boolean disableDetect = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,8 +69,14 @@ public class OpenCVCameraActivity extends AppCompatActivity implements CameraBri
         Button exitButton = findViewById(R.id.exit_button);
         exitButton.setOnClickListener(this);
 
+        Button disableButton = findViewById(R.id.disable_button);
+        disableButton.setOnClickListener(this);
+
         javaCameraView = findViewById(R.id.JavaCamera2View);
         javaCameraView.setCvCameraViewListener(this);
+
+        fpsText = findViewById(R.id.fps_meter);
+        assert fpsText != null;
 
         if (!OpenCVLoader.initDebug()) {
             Toast.makeText(OpenCVCameraActivity.this, "Failed to init OpenCV!", Toast.LENGTH_SHORT).show();
@@ -86,6 +100,8 @@ public class OpenCVCameraActivity extends AppCompatActivity implements CameraBri
             // 一进来就开启摄像头
             javaCameraView.enableView();
         }
+
+        getFPS();
     }
 
     private void initWindow() {
@@ -99,6 +115,8 @@ public class OpenCVCameraActivity extends AppCompatActivity implements CameraBri
         mRgba = new Mat();
         minSize = new Size(120, 120); // 越小越精确越卡
         maxSize = new Size();
+        frameCount = 0;
+        startTs = System.currentTimeMillis();
     }
 
     @Override
@@ -109,13 +127,14 @@ public class OpenCVCameraActivity extends AppCompatActivity implements CameraBri
     @Override
     public Mat onCameraFrame(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
         mRgba = inputFrame.rgba();
+        frameCount ++;
         if (isFrontCamera) {
             // 如果是前置摄像头，做一个镜像翻转
             Mat flipMat = new Mat();
             Core.flip(mRgba, flipMat, 1);
-            return detectFace(flipMat);
+            return disableDetect? flipMat: detectFace(flipMat);
         } else {
-            return detectFace(mRgba);
+            return disableDetect? mRgba: detectFace(mRgba);
         }
     }
 
@@ -146,7 +165,29 @@ public class OpenCVCameraActivity extends AppCompatActivity implements CameraBri
             javaCameraView.enableView();
         } else if (v.getId() == R.id.exit_button) {
             finish();
+        } else if (v.getId() == R.id.disable_button) {
+            disableDetect = !disableDetect;
         }
+    }
+
+
+    private void getFPS() {
+        Executors.newSingleThreadExecutor().execute(() -> {
+            while (true) {
+                long ts = System.currentTimeMillis();
+                double l = frameCount * 1000.0 / (ts - startTs);
+                String fpsString = "FPS: " + Math.round(l * 100.0) / 100.0;  // round(x, 2)
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                    break;
+                }
+                new Handler(Looper.getMainLooper()).post(() -> {
+                    fpsText.setText(fpsString);
+                });
+            }
+        });
     }
 
     public CascadeClassifier getClassifier() throws IOException {

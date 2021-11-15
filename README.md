@@ -8,3 +8,4 @@
 3. OpenCV里的build.gradle SDK版本改为和app里的build.gradle SDK版本一致
 4. OpenCV里的build.gradle，不用kotlin的话，把apply plugin: 'kotlin-android' 注释掉
 5. Project Structure里给app增加OpenCV dependency
+6. Android SDK 增加CMake和NDK
