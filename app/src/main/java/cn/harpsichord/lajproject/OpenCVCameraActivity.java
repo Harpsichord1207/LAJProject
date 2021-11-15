@@ -39,6 +39,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executors;
 
@@ -55,6 +56,7 @@ public class OpenCVCameraActivity extends AppCompatActivity implements CameraBri
     private long startTs;
     private TextView fpsText;
     private boolean disableDetect = false;
+    private List<Rect> facesList ;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -133,9 +135,10 @@ public class OpenCVCameraActivity extends AppCompatActivity implements CameraBri
         boolean detect = true;
         if (disableDetect) {
             detect = false;
+            facesList = null;
         }
         if (frameCount % 3 != 0) {
-            // 如果开启了检测人脸，每3帧检测一次
+            // 如果开启了检测人脸，每3帧检测一次，其他帧滞留原来的结果
             detect = false;
         }
 
@@ -143,18 +146,23 @@ public class OpenCVCameraActivity extends AppCompatActivity implements CameraBri
             // 如果是前置摄像头，做一个镜像翻转
             Mat flipMat = new Mat();
             Core.flip(mRgba, flipMat, 1);
-            return detect? detectFace(flipMat): flipMat;
+            return detectFace(flipMat, detect);
         } else {
-            return detect? detectFace(mRgba): mRgba;
+            return detectFace(mRgba, detect);
         }
     }
 
-    private Mat detectFace(Mat matSrc) {
-        Mat matGray = new Mat();
-        Imgproc.cvtColor(matSrc, matGray, Imgproc.COLOR_BGRA2GRAY);
-        MatOfRect faces = new MatOfRect();
-        cascadeClassifier.detectMultiScale(matGray, faces, 1.2, 3, 0, minSize, maxSize);
-        List<Rect> facesList = faces.toList();
+    private Mat detectFace(Mat matSrc, boolean detect) {
+        if (detect) {
+            Mat matGray = new Mat();
+            Imgproc.cvtColor(matSrc, matGray, Imgproc.COLOR_BGRA2GRAY);
+            MatOfRect faces = new MatOfRect();
+            cascadeClassifier.detectMultiScale(matGray, faces, 1.2, 3, 0, minSize, maxSize);
+            facesList = faces.toList();
+        }
+        if (facesList == null) {
+            return matSrc;
+        }
         for (Rect rect: facesList) {
             Imgproc.rectangle(matSrc, rect.tl(), rect.br(), new Scalar(255, 0, 0, 255), 5);
         }
@@ -163,7 +171,6 @@ public class OpenCVCameraActivity extends AppCompatActivity implements CameraBri
 
     @Override
     public void onClick(View v) {
-
         if (v.getId() == R.id.switch_button) {
             javaCameraView.disableView();  // 点击的瞬间disable，避免有反的图片残影
             if (isFrontCamera) {
@@ -189,7 +196,6 @@ public class OpenCVCameraActivity extends AppCompatActivity implements CameraBri
             }
         }
     }
-
 
     private void getFPS() {
         Executors.newSingleThreadExecutor().execute(() -> {
