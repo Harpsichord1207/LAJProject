@@ -5,118 +5,40 @@
     android:focusable="true"
     android:focusableInTouchMode="true"
     android:gravity="center_horizontal"
-    android:orientation="vertical"
-    android:paddingLeft="10dp"
-    android:paddingRight="10dp">
-
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="10dp">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:text="讯飞听写示例"
-            android:textSize="30sp" />
-
-        <ImageButton
-            android:id="@+id/image_iat_set"
-            android:layout_width="35dp"
-            android:layout_height="35dp"
-            android:layout_alignParentRight="true"
-            android:layout_centerVertical="true" />
-    </RelativeLayout>
+    android:orientation="vertical">
 
     <EditText
         android:id="@+id/iat_text"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
+        android:layout_weight="2"
         android:gravity="top|left"
-        android:hint="text_show_iat_result"
-        android:paddingBottom="10dp"
-        android:textSize="20sp" />
+        android:hint="input some content"/>
 
+    <Button
+        android:id="@+id/speak_button"
+        android:layout_weight="1"
+        android:text="Speak"
+        android:layout_width="match_parent"
+        android:layout_height="0dp" />
 
-    <EditText
-        android:id="@+id/iat_contacts"
+    <Button
+        android:clickable="false"
+        android:layout_width="match_parent"
+        android:layout_height="10dp" />
+
+    <TextView
+        android:text="Click LISTEN to speak"
+        android:id="@+id/listen_text"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:layout_weight="2" />
+
+    <Button
+        android:id="@+id/listen_button"
         android:layout_weight="1"
-        android:gravity="top|left"
-        android:hint="text_show_contacts"
-        android:paddingBottom="10dp"
-        android:textSize="20sp" />
-
-    <LinearLayout
+        android:text="Listen"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:layout_marginBottom="2dp"
-        android:gravity="center_horizontal"
-        android:orientation="horizontal">
-
-        <Button
-            android:id="@+id/iat_recognize"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="开始"
-            android:textSize="20sp" />
-
-        <Button
-            android:id="@+id/iat_stop"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="停止"
-            android:textSize="20sp" />
-
-        <Button
-            android:id="@+id/iat_cancel"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="取消"
-            android:textSize="20sp" />
-    </LinearLayout>
-
-
-    <TextView
-        android:id="@+id/languageText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:clickable="true"
-        android:focusable="true"
-        android:gravity="center_horizontal"
-        android:text="点击设置小语种,当前语种：中文(普通话)"
-        android:textSize="20sp" />
-
-    <Button
-        android:id="@+id/iat_recognize_stream"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:text="音频流识别"
-        android:textSize="20sp" />
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:text="上传词表，可以使云端识别更加准确，这里上传的内容对语义理解同样有效。"
-        android:textSize="18sp" />
-
-    <Button
-        android:id="@+id/iat_upload_userwords"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:layout_marginBottom="4dp"
-        android:text="上传词表"
-        android:textSize="17sp" />
+        android:layout_height="0dp" />
 
 </LinearLayout>
