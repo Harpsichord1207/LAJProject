@@ -110,6 +110,11 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
+        Button voiceBtn = findViewById(R.id.voice_button);
+        voiceBtn.setOnClickListener(v -> {
+            startActivity(new Intent(this, XFActivity.class));
+        });
+
     }
 
     private void cancelTask() {

@@ -12,6 +12,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.LAJProject">
         <activity
+            android:name=".XFActivity"
+            android:exported="false" />
+        <activity
             android:name=".OpenCVCameraActivity"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar"
             android:exported="false" />
