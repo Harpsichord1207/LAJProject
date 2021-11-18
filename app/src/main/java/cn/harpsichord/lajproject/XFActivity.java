@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
@@ -23,9 +24,14 @@ import com.iflytek.cloud.SpeechSynthesizer;
 import com.iflytek.cloud.SpeechUtility;
 import com.iflytek.cloud.SynthesizerListener;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class XFActivity extends AppCompatActivity {
 
     private static final String TAG = "XFActivity";
+
+    private TextView listenText;
 
     private RecognizerListener recognizerListener = new RecognizerListener() {
         @Override
@@ -40,12 +46,12 @@ public class XFActivity extends AppCompatActivity {
 
         @Override
         public void onEndOfSpeech() {
-
         }
 
         @Override
         public void onResult(RecognizerResult recognizerResult, boolean b) {
-            Log.d(TAG, recognizerResult.getResultString());
+            String resultString = recognizerResult.getResultString();
+            listenText.setText(resultString);  // TODO: run on ui thread?
         }
 
         @Override
@@ -59,7 +65,7 @@ public class XFActivity extends AppCompatActivity {
         }
     };
 
-    private SynthesizerListener synthesizerListener = new SynthesizerListener() {
+    private final SynthesizerListener synthesizerListener = new SynthesizerListener() {
         @Override
         public void onSpeakBegin() {
 
@@ -104,6 +110,8 @@ public class XFActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activiry_xf);
 
+        requestPermissions(); //TODO: 处理请求权限失败的情况
+
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.INTERNET) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.INTERNET}, 1);
         }
@@ -129,8 +137,35 @@ public class XFActivity extends AppCompatActivity {
         });
 
         // recognise
-        SpeechRecognizer recognizer = SpeechRecognizer.createRecognizer(this, recognizerListener);// TODO listener
+        SpeechRecognizer recognizer = SpeechRecognizer.createRecognizer(this, i -> System.out.println("SpeechRecognizer Init"));
         recognizer.setParameter(SpeechConstant.RESULT_TYPE, "plain");
         recognizer.setParameter(SpeechConstant.VAD_EOS, "3000");
+
+        Button listen = findViewById(R.id.listen_button);
+        listenText = findViewById(R.id.listen_text);
+        listen.setOnClickListener(v -> {
+            recognizer.startListening(recognizerListener);
+        });
+
     }
+
+    private void requestPermissions() {
+        List<String> permissions = new ArrayList<>();
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            permissions.add(Manifest.permission.CAMERA);
+        }
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.INTERNET) != PackageManager.PERMISSION_GRANTED) {
+            permissions.add(Manifest.permission.INTERNET);
+        }
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+            permissions.add(Manifest.permission.RECORD_AUDIO);
+        }
+
+        if (permissions.isEmpty()) {
+            return;
+        }
+
+        ActivityCompat.requestPermissions(this, permissions.toArray(new String[0]), 1);
+    }
+
 }
