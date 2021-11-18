@@ -44,22 +44,25 @@ public class XFActivity extends AppCompatActivity {
 
         @Override
         public void onBeginOfSpeech() {
-
+            Toast.makeText(XFActivity.this, "Speak!", Toast.LENGTH_SHORT).show();
         }
 
         @Override
         public void onEndOfSpeech() {
+            switchStatus();
+            Toast.makeText(XFActivity.this, "Stop!", Toast.LENGTH_SHORT).show();
         }
 
         @Override
         public void onResult(RecognizerResult recognizerResult, boolean b) {
             String resultString = recognizerResult.getResultString();
-            listenText.setText(resultString);  // TODO: run on ui thread?
+            final CharSequence text = resultString + " " + listenText.getText();
+            listenText.setText(text);  // TODO: run on ui thread?
         }
 
         @Override
         public void onError(SpeechError speechError) {
-
+            Toast.makeText(XFActivity.this, speechError.toString(), Toast.LENGTH_SHORT).show();
         }
 
         @Override
@@ -67,6 +70,8 @@ public class XFActivity extends AppCompatActivity {
 
         }
     };
+
+    private boolean recognizerRunning = false;
 
     private final SynthesizerListener synthesizerListener = new SynthesizerListener() {
         @Override
@@ -108,6 +113,9 @@ public class XFActivity extends AppCompatActivity {
         }
     };
 
+    private SpeechRecognizer recognizer;
+    private Button listenBtn;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -140,26 +148,27 @@ public class XFActivity extends AppCompatActivity {
         });
 
         // recognise
-        SpeechRecognizer recognizer = SpeechRecognizer.createRecognizer(this, i -> System.out.println("SpeechRecognizer Init"));
+        recognizer = SpeechRecognizer.createRecognizer(this, i -> System.out.println("SpeechRecognizer Init"));
         recognizer.setParameter(SpeechConstant.RESULT_TYPE, "plain");
         recognizer.setParameter(SpeechConstant.VAD_EOS, "3000");
 
-        Button listen = findViewById(R.id.listen_button);
+        listenBtn = findViewById(R.id.listen_button);
         listenText = findViewById(R.id.listen_text);
-        listen.setOnTouchListener((v, event) -> {
-            switch (event.getAction()) {
-                case MotionEvent.ACTION_DOWN:
-                    recognizer.startListening(recognizerListener);
-                    listen.setBackgroundColor(Color.RED);
-                    Toast.makeText(XFActivity.this, "Start Listen!", Toast.LENGTH_SHORT).show();
-                case MotionEvent.ACTION_UP:
-                    recognizer.stopListening();
-                    listen.setBackgroundColor(Color.BLUE);
-                    Toast.makeText(XFActivity.this, "Stop Listen!", Toast.LENGTH_SHORT).show();
-            }
-            return true;
+        listenBtn.setOnClickListener(v -> {
+            switchStatus();
         });
+    }
 
+    private void switchStatus() {
+        if (recognizerRunning) {
+            recognizer.stopListening();
+            recognizerRunning = false;
+            listenBtn.setText("Listen");
+        } else {
+            recognizer.startListening(recognizerListener);
+            recognizerRunning = true;
+            listenBtn.setText("Listening");
+        }
     }
 
     private void requestPermissions() {
