@@ -9,3 +9,9 @@
 4. OpenCV里的build.gradle，不用kotlin的话，把apply plugin: 'kotlin-android' 注释掉
 5. Project Structure里给app增加OpenCV dependency
 6. Android SDK 增加CMake和NDK
+
+
+## 集成讯飞语音SDK
+1. 下载SDK解压
+2. Msc.jar放在app/libs下，右键add as library，app的build.gradle中依赖项应该会增加implementation files('libs\\Msc.jar')
+3. 把so文件带文件夹拷贝到app/src/main/jniLibs中

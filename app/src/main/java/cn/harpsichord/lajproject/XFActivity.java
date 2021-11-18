@@ -2,8 +2,11 @@ package cn.harpsichord.lajproject;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MotionEvent;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -143,8 +146,18 @@ public class XFActivity extends AppCompatActivity {
 
         Button listen = findViewById(R.id.listen_button);
         listenText = findViewById(R.id.listen_text);
-        listen.setOnClickListener(v -> {
-            recognizer.startListening(recognizerListener);
+        listen.setOnTouchListener((v, event) -> {
+            switch (event.getAction()) {
+                case MotionEvent.ACTION_DOWN:
+                    recognizer.startListening(recognizerListener);
+                    listen.setBackgroundColor(Color.RED);
+                    Toast.makeText(XFActivity.this, "Start Listen!", Toast.LENGTH_SHORT).show();
+                case MotionEvent.ACTION_UP:
+                    recognizer.stopListening();
+                    listen.setBackgroundColor(Color.BLUE);
+                    Toast.makeText(XFActivity.this, "Stop Listen!", Toast.LENGTH_SHORT).show();
+            }
+            return true;
         });
 
     }
