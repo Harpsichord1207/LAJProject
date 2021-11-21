@@ -186,6 +186,7 @@ public class OpenCVCameraCIGActivity extends AppCompatActivity implements Camera
         String[] models = new String[]{
                 "cigdatalogo_cascade_1",
                 "cigdatalogo_cascade_3",
+                "cigdatalogo_cascade_4",
         };
 
         if (currentModelName == null) {
