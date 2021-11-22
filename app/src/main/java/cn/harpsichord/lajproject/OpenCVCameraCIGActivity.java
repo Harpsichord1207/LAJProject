@@ -44,13 +44,11 @@ public class OpenCVCameraCIGActivity extends AppCompatActivity implements Camera
 
     private Size minSize;
     private Size maxSize;
-    private long frameCount;
-    private long startTs;
-    private TextView fpsText;
-    private List<Rect> facesList ;
+    private List<Rect> targetList ;
 
-
+    private int frameCount = 0;
     private String currentModelName;
+    private TextView modeNameTextView;
     private CascadeClassifier cascadeClassifier;
 
     @Override
@@ -70,8 +68,7 @@ public class OpenCVCameraCIGActivity extends AppCompatActivity implements Camera
         JavaCamera2View javaCameraView = findViewById(R.id.JavaCamera2View2);
         javaCameraView.setCvCameraViewListener(this);
 
-        fpsText = findViewById(R.id.fps_meter_2);
-        assert fpsText != null;
+        modeNameTextView = findViewById(R.id.mode_name_text);
 
         if (!OpenCVLoader.initDebug()) {
             Toast.makeText(OpenCVCameraCIGActivity.this, "Failed to init OpenCV!", Toast.LENGTH_SHORT).show();
@@ -95,8 +92,6 @@ public class OpenCVCameraCIGActivity extends AppCompatActivity implements Camera
             // 一进来就开启摄像头
             javaCameraView.enableView();
         }
-
-        getFPS();
     }
 
     private void initWindow() {
@@ -110,8 +105,6 @@ public class OpenCVCameraCIGActivity extends AppCompatActivity implements Camera
         mRgba = new Mat();
         minSize = new Size(50, 50); // 越小越精确越卡
         maxSize = new Size();
-        frameCount = 0;
-        startTs = System.currentTimeMillis();
     }
 
     @Override
@@ -127,6 +120,8 @@ public class OpenCVCameraCIGActivity extends AppCompatActivity implements Camera
         if (frameCount % 3 != 0) {
             // 如果开启了检测，每3帧检测一次，其他帧滞留原来的结果
             detect = false;
+        } else {
+            frameCount = 0;
         }
         return detectFace(mRgba, detect);
     }
@@ -135,14 +130,14 @@ public class OpenCVCameraCIGActivity extends AppCompatActivity implements Camera
         if (detect) {
             Mat matGray = new Mat();
             Imgproc.cvtColor(matSrc, matGray, Imgproc.COLOR_BGRA2GRAY);
-            MatOfRect faces = new MatOfRect();
-            cascadeClassifier.detectMultiScale(matGray, faces, 1.2, 3, 0, minSize, maxSize);
-            facesList = faces.toList();
+            MatOfRect targets = new MatOfRect();
+            cascadeClassifier.detectMultiScale(matGray, targets, 1.2, 3, 0, minSize, maxSize);
+            targetList = targets.toList();
         }
-        if (facesList == null) {
+        if (targetList == null) {
             return matSrc;
         }
-        for (Rect rect: facesList) {
+        for (Rect rect: targetList) {
             Imgproc.rectangle(matSrc, rect.tl(), rect.br(), new Scalar(255, 0, 0, 255), 5);
         }
         return matSrc;
@@ -160,25 +155,6 @@ public class OpenCVCameraCIGActivity extends AppCompatActivity implements Camera
                 Toast.makeText(this, "Failed to change Model!", Toast.LENGTH_LONG).show();
             }
         }
-    }
-
-    private void getFPS() {
-        Executors.newSingleThreadExecutor().execute(() -> {
-            while (true) {
-                long ts = System.currentTimeMillis();
-                double l = frameCount * 1000.0 / (ts - startTs);
-                String fpsString = "FPS: " + Math.round(l * 100.0) / 100.0;  // round(x, 2)
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                    break;
-                }
-                new Handler(Looper.getMainLooper()).post(() -> {
-                    fpsText.setText(fpsString);
-                });
-            }
-        });
     }
 
     private void getAndChangeCascadeClassifier() throws IOException {
@@ -206,6 +182,7 @@ public class OpenCVCameraCIGActivity extends AppCompatActivity implements Camera
         }
 
         Toast.makeText(this, "Current Model: " + currentModelName, Toast.LENGTH_LONG).show();
+        modeNameTextView.setText(currentModelName);
 
         int rId = this.getResources().getIdentifier(currentModelName, "raw", this.getPackageName());
 
