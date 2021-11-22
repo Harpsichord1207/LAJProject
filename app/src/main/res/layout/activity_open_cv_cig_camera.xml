@@ -32,6 +32,7 @@
         android:layout_height="wrap_content" />
 
     <VideoView
+        android:visibility="invisible"
         android:id="@+id/front_video_over_camera"
         android:layout_gravity="center"
         android:layout_width="128dp"

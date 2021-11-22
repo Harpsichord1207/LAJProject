@@ -57,6 +57,7 @@ public class OpenCVCameraCIGActivity extends AppCompatActivity implements Camera
 
     // 0: not played, 1: playing, 2: finished
     private int videoStatus = 0;
+    private VideoView videoView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -100,12 +101,13 @@ public class OpenCVCameraCIGActivity extends AppCompatActivity implements Camera
             javaCameraView.enableView();
         }
 
+        videoView = findViewById(R.id.front_video_over_camera);
+        videoView.setZOrderOnTop(true); // not work in runOnUiThread?
+
     }
 
     private void playVideo() {
         runOnUiThread(() -> {
-            VideoView videoView = findViewById(R.id.front_video_over_camera);
-            videoView.setZOrderOnTop(true);
             videoView.setVisibility(View.VISIBLE);
             MediaController mediaController = new MediaController(OpenCVCameraCIGActivity.this);
             mediaController.setAnchorView(videoView);
