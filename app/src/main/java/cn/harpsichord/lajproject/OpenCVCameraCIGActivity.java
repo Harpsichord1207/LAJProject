@@ -5,6 +5,8 @@ import android.content.Context;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -12,8 +14,10 @@ import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.MediaController;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.VideoView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -50,6 +54,9 @@ public class OpenCVCameraCIGActivity extends AppCompatActivity implements Camera
     private String currentModelName;
     private TextView modeNameTextView;
     private CascadeClassifier cascadeClassifier;
+
+    // 0: not played, 1: playing, 2: finished
+    private int videoStatus = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,6 +99,27 @@ public class OpenCVCameraCIGActivity extends AppCompatActivity implements Camera
             // 一进来就开启摄像头
             javaCameraView.enableView();
         }
+
+    }
+
+    private void playVideo() {
+        runOnUiThread(() -> {
+            VideoView videoView = findViewById(R.id.front_video_over_camera);
+            videoView.setZOrderOnTop(true);
+            videoView.setVisibility(View.VISIBLE);
+            MediaController mediaController = new MediaController(OpenCVCameraCIGActivity.this);
+            mediaController.setAnchorView(videoView);
+            Uri localUri = Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.cig_introduction);
+            videoView.setVideoURI(localUri);
+            videoView.setMediaController(mediaController);
+            videoView.setOnCompletionListener(mp -> {
+                videoView.setVisibility(View.GONE);
+                videoStatus = 2;
+            });
+
+            videoView.start();
+            videoStatus = 1;
+        });
     }
 
     private void initWindow() {
@@ -123,10 +151,10 @@ public class OpenCVCameraCIGActivity extends AppCompatActivity implements Camera
         } else {
             frameCount = 0;
         }
-        return detectFace(mRgba, detect);
+        return detectTarget(mRgba, detect);
     }
 
-    private Mat detectFace(Mat matSrc, boolean detect) {
+    private Mat detectTarget(Mat matSrc, boolean detect){
         if (detect) {
             Mat matGray = new Mat();
             Imgproc.cvtColor(matSrc, matGray, Imgproc.COLOR_BGRA2GRAY);
@@ -136,6 +164,9 @@ public class OpenCVCameraCIGActivity extends AppCompatActivity implements Camera
         }
         if (targetList == null) {
             return matSrc;
+        }
+        if (targetList.size() > 0 && videoStatus == 0) {
+            playVideo();
         }
         for (Rect rect: targetList) {
             Imgproc.rectangle(matSrc, rect.tl(), rect.br(), new Scalar(255, 0, 0, 255), 5);
