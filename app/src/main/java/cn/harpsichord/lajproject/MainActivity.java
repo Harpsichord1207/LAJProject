@@ -121,6 +121,12 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
+        Button openglBtn = findViewById(R.id.opengl_button);
+        openglBtn.setOnClickListener(v -> {
+            Intent intent = new Intent(this, OpenGLActivity.class);
+            startActivity(intent);
+        });
+
     }
 
     private void cancelTask() {
