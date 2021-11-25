@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout android:layout_height="match_parent"
     android:layout_width="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="#000"
     xmlns:android="http://schemas.android.com/apk/res/android">
 
@@ -31,11 +32,12 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
 
-    <VideoView
+    <com.alphamovie.lib.AlphaMovieView
+        app:accuracy="0.5"
         android:visibility="invisible"
         android:id="@+id/front_video_over_camera"
         android:layout_gravity="center"
-        android:layout_width="128dp"
-        android:layout_height="72dp" />
+        android:layout_width="200dp"
+        android:layout_height="300dp" />
 
 </FrameLayout>

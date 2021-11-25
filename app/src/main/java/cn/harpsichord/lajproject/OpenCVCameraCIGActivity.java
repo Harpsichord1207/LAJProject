@@ -22,6 +22,8 @@ import android.widget.VideoView;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
+import com.alphamovie.lib.AlphaMovieView;
+
 import org.opencv.android.CameraBridgeViewBase;
 import org.opencv.android.JavaCamera2View;
 import org.opencv.android.OpenCVLoader;
@@ -57,7 +59,7 @@ public class OpenCVCameraCIGActivity extends AppCompatActivity implements Camera
 
     // 0: not played, 1: playing, 2: finished
     private int videoStatus = 0;
-    private VideoView videoView;
+    private AlphaMovieView videoView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -102,25 +104,42 @@ public class OpenCVCameraCIGActivity extends AppCompatActivity implements Camera
         }
 
         videoView = findViewById(R.id.front_video_over_camera);
-        videoView.setZOrderOnTop(true); // not work in runOnUiThread?
+        videoView.setOnVideoEndedListener(() -> {
+            videoStatus = 2;
+            videoView.stop();
+        });
+        // videoView.setZOrderOnTop(true); // not work in runOnUiThread?
 
     }
 
-    private void playVideo() {
-        runOnUiThread(() -> {
-            videoView.setVisibility(View.VISIBLE);
-            MediaController mediaController = new MediaController(OpenCVCameraCIGActivity.this);
-            mediaController.setAnchorView(videoView);
-            Uri localUri = Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.cig_introduction);
-            videoView.setVideoURI(localUri);
-            videoView.setMediaController(mediaController);
-            videoView.setOnCompletionListener(mp -> {
-                videoView.setVisibility(View.GONE);
-                videoStatus = 2;
-            });
+    @Override
+    protected void onResume() {
+        super.onResume();
+        videoView.onResume();
+    }
 
-            videoView.start();
-            videoStatus = 1;
+    @Override
+    protected void onPause() {
+        super.onPause();
+        videoView.onPause();
+    }
+
+    private void playVideo() {
+        runOnUiThread(new Runnable() {
+            Uri localUri = Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.alpha_channel_test);
+            @Override
+            public void run() {
+                try {
+                    // TODO setVideo之前就播放起来了？总之先reset一把
+                    videoView.getMediaPlayer().reset();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                videoView.setVideoFromUri(OpenCVCameraCIGActivity.this, localUri);
+                // TODO 闪黑屏
+                videoView.setVisibility(View.VISIBLE);
+                videoStatus = 1;
+            }
         });
     }
 
