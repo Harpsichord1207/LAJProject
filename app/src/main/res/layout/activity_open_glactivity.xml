@@ -6,8 +6,9 @@
     android:layout_height="match_parent"
     tools:context=".OpenGLActivity">
 
-    <android.opengl.GLSurfaceView
-        android:id="@+id/MyGLSurfaceView"
+    <com.alphamovie.lib.AlphaMovieView
+        app:accuracy="0.6"
+        android:id="@+id/alpha_movie_test"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 

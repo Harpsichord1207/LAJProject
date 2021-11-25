@@ -15,3 +15,9 @@
 1. 下载SDK解压
 2. Msc.jar放在app/libs下，右键add as library，app的build.gradle中依赖项应该会增加implementation files('libs\\Msc.jar')
 3. 把so文件带文件夹拷贝到app/src/main/jniLibs中
+
+
+## 实时处理视频
+1. 目前想到的比较好的方法就是用OpenGL处理
+2. 但学习成本就高，先用了一个别人封装好的开源库，地址是https://github.com/pavelsemak/alpha-movie
+3. 主要用于对绿幕设置Alpha通道
