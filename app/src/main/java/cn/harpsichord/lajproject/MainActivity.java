@@ -127,6 +127,12 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
+        Button vipBtn = findViewById(R.id.vip_button);
+        vipBtn.setOnClickListener(v -> {
+            Intent intent = new Intent(this, VIPActivity.class);
+            startActivity(intent);
+        });
+
     }
 
     private void cancelTask() {
