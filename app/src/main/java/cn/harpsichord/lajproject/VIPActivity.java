@@ -40,7 +40,6 @@ public class VIPActivity extends AppCompatActivity {
 
     private static String url;
     private static String secret;
-    private static String fullUrl;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,17 +67,7 @@ public class VIPActivity extends AppCompatActivity {
             Toast.makeText(this, "Failed to get secret content.", Toast.LENGTH_SHORT).show();
             finish();
         }
-        long ts = System.currentTimeMillis();
-        try {
-            MessageDigest md5 = MessageDigest.getInstance("MD5");
-            md5.update((ts + "" + secret).getBytes());
-            String token = new BigInteger(1, md5.digest()).toString(16);
-            fullUrl = url + "?ts=" + ts + "&token=" + token;
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-            Toast.makeText(this, "Failed to get MD5 instance.", Toast.LENGTH_SHORT).show();
-            finish();
-        }
+        
 
         TextView userCountTextView = findViewById(R.id.user_count);
         TextView vipCountTextView = findViewById(R.id.vip_count);
@@ -88,7 +77,7 @@ public class VIPActivity extends AppCompatActivity {
         Button refreshBtn = findViewById(R.id.refresh_vip);
         refreshBtn.setOnClickListener(v -> new Thread(() -> {
             OkHttpClient client = new OkHttpClient.Builder().readTimeout(5, TimeUnit.SECONDS).build();
-            Request request = new Request.Builder().url(fullUrl).get().build();
+            Request request = new Request.Builder().url(getFullUrl()).get().build();
             Call call = client.newCall(request);
             try {
                 Response response = call.execute();
@@ -138,13 +127,14 @@ public class VIPActivity extends AppCompatActivity {
                 customToast("Unknown Error");
                 finish();
             }
-            RequestBody requestBody = RequestBody.create(mediaType, String.valueOf(jsonObject));
-            Request request = new Request.Builder().url(fullUrl).post(requestBody).build();
+            RequestBody requestBody = RequestBody.create(String.valueOf(jsonObject), mediaType);
+            Request request = new Request.Builder().url(getFullUrl()).post(requestBody).build();
             Call call = client.newCall(request);
             try {
                 Response response = call.execute();
                 if (response.code() == 404) {
                     customToast("Invalid User!");
+                    return;
                 }
 
                 ResponseBody responseBody = response.body();
@@ -192,5 +182,22 @@ public class VIPActivity extends AppCompatActivity {
     private void customToast(String content) {
         // TODO: 默认参数Toast.LENGTH_SHORT
         runOnUiThread(() -> Toast.makeText(VIPActivity.this, content, Toast.LENGTH_SHORT).show());
+    }
+
+    private String getFullUrl() {
+        String fullUrl = null;
+        long ts = System.currentTimeMillis();
+        try {
+            MessageDigest md5 = MessageDigest.getInstance("MD5");
+            md5.update((ts + "" + secret).getBytes());
+            String token = new BigInteger(1, md5.digest()).toString(16);
+            fullUrl = url + "?ts=" + ts + "&token=" + token;
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+            customToast("Failed to get MD5 instance.");
+            this.finish();
+        }
+        System.out.println("Full url: " + fullUrl);
+        return fullUrl;
     }
 }
