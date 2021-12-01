@@ -28,11 +28,36 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
+    <TextView
+        android:id="@+id/last_vip_ts"
+        android:text="最近一次请求VIP时间: null"
+        android:layout_margin="10dp"
+        android:textSize="24sp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
     <Button
         android:id="@+id/refresh_vip"
         android:text="刷新"
+        android:textSize="24sp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
+
+    <EditText
+        android:id="@+id/input_eml"
+        android:hint="请输入需要设置VIP的账号"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="24sp" />
+
+    <Button
+        android:id="@+id/set_vip"
+        android:text="设置"
+        android:textSize="24sp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+
 
 
 </LinearLayout>
