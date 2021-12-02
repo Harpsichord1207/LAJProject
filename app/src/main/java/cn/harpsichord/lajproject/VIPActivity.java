@@ -67,7 +67,6 @@ public class VIPActivity extends AppCompatActivity {
             Toast.makeText(this, "Failed to get secret content.", Toast.LENGTH_SHORT).show();
             finish();
         }
-        
 
         TextView userCountTextView = findViewById(R.id.user_count);
         TextView vipCountTextView = findViewById(R.id.vip_count);
@@ -81,6 +80,7 @@ public class VIPActivity extends AppCompatActivity {
             Call call = client.newCall(request);
             try {
                 Response response = call.execute();
+                customToast("Response " + response.code());
                 ResponseBody body = response.body();
                 if (body != null) {
                     String string = body.string();
