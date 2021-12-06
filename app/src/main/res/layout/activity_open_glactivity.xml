@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     tools:context=".OpenGLActivity">
 
-    <com.alphamovie.lib.AlphaMovieView
+    <cn.harpsichord.lajproject.CIGAlphaMovie.AlphaMovieView
         app:accuracy="0.5"
         android:id="@+id/alpha_movie_test"
         app:layout_constraintTop_toTopOf="parent"

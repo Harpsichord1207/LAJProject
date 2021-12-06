@@ -1,9 +1,12 @@
 package cn.harpsichord.lajproject;
 
+import android.content.Context;
 import android.net.Uri;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
+import android.util.AttributeSet;
 import android.util.Log;
+import android.view.Surface;
 import android.view.View;
 import android.widget.SeekBar;
 import android.widget.Toast;
@@ -11,8 +14,9 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.alphamovie.lib.AlphaMovieView;
-
+//import com.alphamovie.lib.AlphaMovieView;
+import cn.harpsichord.lajproject.CIGAlphaMovie.AlphaMovieView;
+import cn.harpsichord.lajproject.CIGAlphaMovie.VideoRenderer;
 
 public class OpenGLActivity extends AppCompatActivity {
 
@@ -32,7 +36,14 @@ public class OpenGLActivity extends AppCompatActivity {
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 System.out.println("Current Alpha: " + progress / 100.0F);
                 // 这个并不是设置视频绿幕的alpha，而是整个view的，没有提供相关方法单独设置绿幕的
-                alphaMovieView.setAlpha(progress / 100.0F);
+                // alphaMovieView.setAlpha(progress / 100.0F);
+
+
+                VideoRenderer renderer = new VideoRenderer();
+                renderer.setAccuracy(progress / 100.0F);
+                alphaMovieView.setRenderer(renderer);
+                alphaMovieView.stop();
+
             }
 
             @Override
@@ -68,4 +79,3 @@ public class OpenGLActivity extends AppCompatActivity {
     }
 
 }
-
