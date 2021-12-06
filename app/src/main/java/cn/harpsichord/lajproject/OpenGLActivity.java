@@ -36,13 +36,7 @@ public class OpenGLActivity extends AppCompatActivity {
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 System.out.println("Current Alpha: " + progress / 100.0F);
                 // 这个并不是设置视频绿幕的alpha，而是整个view的，没有提供相关方法单独设置绿幕的
-                // alphaMovieView.setAlpha(progress / 100.0F);
-
-
-                VideoRenderer renderer = new VideoRenderer();
-                renderer.setAccuracy(progress / 100.0F);
-                alphaMovieView.setRenderer(renderer);
-                alphaMovieView.stop();
+                 alphaMovieView.setAlpha(progress / 100.0F);
 
             }
 
