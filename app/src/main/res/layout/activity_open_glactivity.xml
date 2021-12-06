@@ -7,9 +7,20 @@
     tools:context=".OpenGLActivity">
 
     <com.alphamovie.lib.AlphaMovieView
-        app:accuracy="0.6"
+        app:accuracy="0.5"
         android:id="@+id/alpha_movie_test"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintHeight_percent="0.95"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="0dp" />
+
+    <SeekBar
+        android:id="@+id/change_alpha_seekbar"
+        app:layout_constraintTop_toBottomOf="@id/alpha_movie_test"
+        app:layout_constraintHeight_percent="0.05"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:max="100"
+        android:progress="50" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
