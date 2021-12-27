@@ -15,6 +15,7 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.MediaController;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.VideoView;
@@ -60,14 +61,14 @@ public class OpenCVCameraCIGActivity extends AppCompatActivity implements Camera
     // 0: not played, 1: playing, 2: finished
     private int videoStatus = 0;
     private AlphaMovieView videoView;
+    private static String alphaVideoUri = "https://cig-test.s3.cn-north-1.amazonaws.com.cn/liutao/CIGAR/media/alpha_channel_test.mp4";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         initWindow();
-
         setContentView(R.layout.activity_open_cv_cig_camera);
+        // ProgressBar pb = findViewById(R.id.wait_progress_bar);
 
         Button changeModelBtn = findViewById(R.id.change_model_button);
         changeModelBtn.setOnClickListener(this);
@@ -104,12 +105,13 @@ public class OpenCVCameraCIGActivity extends AppCompatActivity implements Camera
         }
 
         videoView = findViewById(R.id.front_video_over_camera);
+        videoView.setVideoByUrl(alphaVideoUri);
         videoView.setOnVideoEndedListener(() -> {
             videoStatus = 2;
             videoView.stop();
         });
         // videoView.setZOrderOnTop(true); // not work in runOnUiThread?
-
+        // pb.setVisibility(View.GONE);
     }
 
     @Override
@@ -125,21 +127,16 @@ public class OpenCVCameraCIGActivity extends AppCompatActivity implements Camera
     }
 
     private void playVideo() {
-        runOnUiThread(new Runnable() {
-            Uri localUri = Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.alpha_channel_test);
-            @Override
-            public void run() {
-                try {
-                    // TODO setVideo之前就播放起来了？总之先reset一把
-                    videoView.getMediaPlayer().reset();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                videoView.setVideoFromUri(OpenCVCameraCIGActivity.this, localUri);
-                // TODO 闪黑屏
-                videoView.setVisibility(View.VISIBLE);
-                videoStatus = 1;
-            }
+        runOnUiThread(() -> {
+            // 一开始使用本地视频时，需要videoView.getMediaPlayer().reset();
+            // 改为通过url播放远端视频，在View的onCreate方法里setVideoByUrl，不再需要reset MediaPlayer
+
+            // TODO 闪黑屏
+            videoView.setVisibility(View.VISIBLE);
+            System.out.println("Point 1");
+            videoStatus = 1;
+            videoView.start();
+            System.out.println("Point 2");
         });
     }
 
