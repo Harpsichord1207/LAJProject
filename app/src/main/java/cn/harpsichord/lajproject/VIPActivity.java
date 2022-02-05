@@ -115,6 +115,17 @@ public class VIPActivity extends AppCompatActivity {
 
         EditText editText = findViewById(R.id.input_eml);
 
+        Button copyBtn = findViewById(R.id.copy_eml);
+        copyBtn.setOnClickListener(v -> {
+            String text = lastVipTextView.getText().toString();
+            String lastVipEmail = text.substring("最近一次请求VIP用户: ".length()).trim();
+            if ("null".equalsIgnoreCase(lastVipEmail)) {
+                customToast("Refresh before copy!");
+            } else {
+                editText.setText(lastVipEmail);
+            }
+        });
+
         Button setBtn = findViewById(R.id.set_vip);
         setBtn.setOnClickListener(v -> new Thread(() -> {
             OkHttpClient client = new OkHttpClient.Builder().readTimeout(5, TimeUnit.SECONDS).build();

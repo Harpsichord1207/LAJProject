@@ -51,13 +51,17 @@
         android:textSize="24sp" />
 
     <Button
+        android:id="@+id/copy_eml"
+        android:hint="复制"
+        android:textSize="24sp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <Button
         android:id="@+id/set_vip"
         android:text="设置"
         android:textSize="24sp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
-
-
-
 
 </LinearLayout>
