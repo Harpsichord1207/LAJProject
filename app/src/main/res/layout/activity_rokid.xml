@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/black"
+    tools:context=".RokidActivity">
+    <!--    在Rokid中经测试黑色背景和透明是一样的-->
+
+    <!--JavaCamera2View宽高至少得有1dp，否则好像不输出图像-->
+    <org.opencv.android.JavaCamera2View
+        android:id="@+id/JavaCamera2View2Rokid"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_width="1dp"
+        android:layout_height="0dp" />
+
+    <com.alphamovie.lib.AlphaMovieView
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:accuracy="0.5"
+        android:visibility="invisible"
+        android:id="@+id/front_video_over_camera_rokid"
+        android:layout_gravity="center"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <LinearLayout
+        android:id="@+id/help_info"
+        android:elevation="2dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_width="wrap_content"
+        android:layout_height="40dp">
+
+        <TextView
+            android:id="@+id/show_target_text"
+            android:text="识别目标中..."
+            android:textSize="24sp"
+            android:textColor="#CC1A73E8"
+            android:padding="5dp"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp" />
+
+        <ImageView
+            android:padding="5dp"
+            android:id="@+id/show_target_image"
+            android:layout_width="40dp"
+            android:layout_height="40dp" />
+
+        <ImageView
+            android:padding="5dp"
+            android:id="@+id/show_full_image"
+            android:layout_width="40dp"
+            android:layout_height="40dp" />
+
+    </LinearLayout>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

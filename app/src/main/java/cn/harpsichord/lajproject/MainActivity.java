@@ -115,6 +115,12 @@ public class MainActivity extends AppCompatActivity {
             startActivity(new Intent(this, XFActivity.class));
         });
 
+        Button rokidBtn = findViewById(R.id.Rokid_btn);
+        rokidBtn.setOnClickListener(v -> {
+            Intent intent = new Intent(this, RokidActivity.class);
+            startActivity(intent);
+        });
+
         Button cigLogoBtn = findViewById(R.id.find_cig_data_button);
         cigLogoBtn.setOnClickListener(v -> {
             Intent intent = new Intent(this, OpenCVCameraCIGActivity.class);
