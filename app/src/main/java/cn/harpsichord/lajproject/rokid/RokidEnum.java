@@ -1,2 +1,7 @@
-package cn.harpsichord.lajproject.rokid;public class RokidEnum {
+package cn.harpsichord.lajproject.rokid;
+
+public class RokidEnum {
+
+    enum VideoStatus {BeforePlay, Playing, AfterPlay}
+
 }

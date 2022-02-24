@@ -36,7 +36,6 @@ import cn.harpsichord.lajproject.R;
 
 public class RokidActivity extends AppCompatActivity {
 
-    public String currentModelName;
     public CascadeClassifier cascadeClassifier;
     private final String TAG = "ROKID";
     private AlphaMovieView videoView;
@@ -46,7 +45,7 @@ public class RokidActivity extends AppCompatActivity {
     private Size maxSize;
     private long frameCount = 0;
     private List<Rect> targetList;
-    private int videoStatus = 0;
+    private RokidEnum.VideoStatus videoStatus = RokidEnum.VideoStatus.BeforePlay;
     private TextView showTextView;
 
     private static final String alphaVideoUri = "https://cig-test.s3.cn-north-1.amazonaws.com.cn/liutao/CIGAR/media/alpha_channel_test.mp4";
@@ -58,14 +57,19 @@ public class RokidActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_rokid);
 
+        // Window Manager
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
+        // Find All Views
         videoView = findViewById(R.id.front_video_over_camera_rokid);
         videoView.setVideoByUrl(alphaVideoUri);
+        // 看源码发现默认就一直looping
+        videoView.setLooping(false);
         videoView.setOnVideoEndedListener(() -> {
-            videoStatus = 2;
+            videoStatus = RokidEnum.VideoStatus.AfterPlay;
             videoView.stop();
+            runOnUiThread(() -> {videoView.setVisibility(View.INVISIBLE);});
         });
 
         showTextView = findViewById(R.id.show_target_text);
@@ -114,7 +118,7 @@ public class RokidActivity extends AppCompatActivity {
             finish();
         } else {
             try {
-                getAndChangeCascadeClassifier();
+                cascadeClassifier = RokidClassifier.loadCascadeClassifier(this);
             } catch (IOException e) {
                 Toast.makeText(RokidActivity.this, "Failed to getClassifier!", Toast.LENGTH_SHORT).show();
                 e.printStackTrace();
@@ -141,7 +145,7 @@ public class RokidActivity extends AppCompatActivity {
             Imgproc.rectangle(matSrc, rect.tl(), rect.br(), new Scalar(255, 0, 0, 255), 5);
         }
 
-        if (targetList.size() > 0 && videoStatus == 0) {
+        if (targetList.size() > 0 && videoStatus == RokidEnum.VideoStatus.BeforePlay) {
             Rect rect = targetList.get(0);
 
             // 在另一个Thread中运行，matSrc可能已经不是原来那个了，因此要copy一个出来
@@ -166,62 +170,13 @@ public class RokidActivity extends AppCompatActivity {
         return matSrc;
     }
 
-    private void getAndChangeCascadeClassifier() throws IOException {
-
-        String[] models = new String[]{
-                "cigdatalogo_cascade_1",
-                "cigdatalogo_cascade_3",
-                "cigdatalogo_cascade_4",
-        };
-
-        if (currentModelName == null) {
-            currentModelName = models[0];
-        } else {
-            int index = -1;
-            for (int i=0; i<models.length; i++) {
-                if (models[i].equals(currentModelName)) {
-                    index = i;
-                }
-            }
-            if (index == models.length - 1) {
-                currentModelName = models[0];
-            } else {
-                currentModelName = models[index+1];
-            }
-        }
-
-        Toast.makeText(this, "Current Model: " + currentModelName, Toast.LENGTH_LONG).show();
-        Log.w(TAG, "Current Model: " + currentModelName);
-
-        int rId = this.getResources().getIdentifier(currentModelName, "raw", this.getPackageName());
-
-        InputStream inputStream = getResources().openRawResource(rId);
-        File cascade = getDir("cascade", Context.MODE_PRIVATE);  // TODO why?
-        File file = new File(cascade, "tmp_cig_logo_model.xml");
-        FileOutputStream fileOutputStream = new FileOutputStream(file);
-        byte[] buffer = new byte[4096];
-        int bytesRead;
-        while ((bytesRead = inputStream.read(buffer)) != -1) {
-            fileOutputStream.write(buffer, 0, bytesRead);
-        }
-        inputStream.close();
-        fileOutputStream.close();
-        cascadeClassifier = new CascadeClassifier(file.getAbsolutePath());
-        boolean delete1 = file.delete();
-        boolean delete2 = cascade.delete();
-        if (!(delete1 && delete2)) {
-            Log.e(TAG, "Failed to delete some files.");
-        }
-    }
-
     private void playVideo() {
         runOnUiThread(() -> {
             // 一开始使用本地视频时，需要videoView.getMediaPlayer().reset();
             // 改为通过url播放远端视频，在View的onCreate方法里setVideoByUrl，不再需要reset MediaPlayer
 
-            // TODO 闪黑屏
             videoView.setVisibility(View.VISIBLE);
-            videoStatus = 1;
+            videoStatus = RokidEnum.VideoStatus.Playing;
             videoView.start();
         });
     }
