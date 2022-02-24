@@ -19,7 +19,8 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.LAJProject">
         <activity
-            android:name=".RokidActivity"
+            android:name=".rokid.RokidActivity"
+            android:theme="@style/Theme.AppCompat.DayNight.NoActionBar"
             android:exported="false" />
         <activity
             android:name=".VIPActivity"

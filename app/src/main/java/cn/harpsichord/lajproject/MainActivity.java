@@ -15,6 +15,8 @@ import org.opencv.android.OpenCVLoader;
 
 import java.util.Random;
 
+import cn.harpsichord.lajproject.rokid.RokidActivity;
+
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";

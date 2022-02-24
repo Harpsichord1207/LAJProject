@@ -1,10 +1,9 @@
-package cn.harpsichord.lajproject;
+package cn.harpsichord.lajproject.rokid;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -32,6 +31,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
+
+import cn.harpsichord.lajproject.R;
 
 public class RokidActivity extends AppCompatActivity {
 
@@ -76,9 +77,13 @@ public class RokidActivity extends AppCompatActivity {
             @Override
             public void onCameraViewStarted(int width, int height) {
                 mRgba = new Mat();
-                minSize = new Size(60, 60); // 越小越精确越卡 todo 与width/height挂钩
+                if (width < 1000) {
+                    // Rokid 只有640x480的分辨率 minSize 得小一点
+                    minSize = new Size(40, 40); // 越小越精确越卡
+                } else {
+                    minSize = new Size(150, 150);
+                }
                 maxSize = new Size();
-                // Rokid 只有640x480的分辨率 minSize 得小一点
                 Toast.makeText(RokidActivity.this, "Camera Started: " + width + "x" + height, Toast.LENGTH_LONG).show();
             }
 
@@ -99,7 +104,7 @@ public class RokidActivity extends AppCompatActivity {
                 } else {
                     frameCount = 0;
                 }
-                Log.w(TAG, "Mat Size: " + mRgba.size());
+                // Log.w(TAG, "Mat Size: " + mRgba.size());
                 return detectTarget(mRgba, detect);
             }
         });
