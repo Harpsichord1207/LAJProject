@@ -16,6 +16,7 @@ import org.opencv.android.OpenCVLoader;
 import java.util.Random;
 
 import cn.harpsichord.lajproject.rokid.RokidActivity;
+import cn.harpsichord.lajproject.rokid.RokidNativeCameraTest;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -121,6 +122,11 @@ public class MainActivity extends AppCompatActivity {
         rokidBtn.setOnClickListener(v -> {
             Intent intent = new Intent(this, RokidActivity.class);
             startActivity(intent);
+        });
+
+        Button rokidNativeBtn = findViewById(R.id.Rokid_native_btn);
+        rokidNativeBtn.setOnClickListener(v -> {
+            startActivity(new Intent(this, RokidNativeCameraTest.class));
         });
 
         Button cigLogoBtn = findViewById(R.id.find_cig_data_button);
