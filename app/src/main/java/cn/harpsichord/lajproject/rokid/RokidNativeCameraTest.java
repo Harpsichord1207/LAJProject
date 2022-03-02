@@ -5,9 +5,11 @@ import android.content.pm.PackageManager;
 import android.graphics.ImageFormat;
 import android.graphics.SurfaceTexture;
 import android.hardware.camera2.CameraAccessException;
+import android.hardware.camera2.CameraCaptureSession;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CameraManager;
+import android.hardware.camera2.CaptureRequest;
 import android.media.Image;
 import android.media.ImageReader;
 import android.os.Bundle;
@@ -15,6 +17,7 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.util.Log;
 import android.util.Size;
+import android.view.Surface;
 import android.view.TextureView;
 import android.widget.Toast;
 
@@ -22,7 +25,8 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
-import cn.harpsichord.lajproject.CameraActivity;
+import java.util.ArrayList;
+
 import cn.harpsichord.lajproject.R;
 
 public class RokidNativeCameraTest extends AppCompatActivity implements TextureView.SurfaceTextureListener {
@@ -35,11 +39,14 @@ public class RokidNativeCameraTest extends AppCompatActivity implements TextureV
     private HandlerThread backgroundHandlerThread;
     private Handler backgroundHandler;
 
+    private TextureView textureView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_camera);
+
+        textureView = findViewById(R.id.camera_texture_view);
 
         cameraManager = (CameraManager) getSystemService(CAMERA_SERVICE);
         try {
@@ -75,12 +82,37 @@ public class RokidNativeCameraTest extends AppCompatActivity implements TextureV
         }
 
         startBackgroundThread();
+        SurfaceTexture surfaceTexture = textureView.getSurfaceTexture();
+        surfaceTexture.setDefaultBufferSize(maxSize.getWidth(), maxSize.getHeight());
 
         try {
             cameraManager.openCamera(cameraID, new CameraDevice.StateCallback() {
                 @Override
                 public void onOpened(@NonNull CameraDevice camera) {
                     Log.w(logTag, "Camera on Opened!");
+                    try {
+                        CaptureRequest.Builder captureRequest = camera.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW);
+                        Surface surface = new Surface(surfaceTexture);
+                        captureRequest.addTarget(surface);
+                        camera.createCaptureSession(new ArrayList<Surface>(){{add(surface);add(imageReader.getSurface());}}, new CameraCaptureSession.StateCallback() {
+                            @Override
+                            public void onConfigured(@NonNull CameraCaptureSession session) {
+                                try {
+                                    session.setRepeatingRequest(captureRequest.build(), null, backgroundHandler);
+                                } catch (CameraAccessException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+
+                            @Override
+                            public void onConfigureFailed(@NonNull CameraCaptureSession session) {
+
+                            }
+                        }, null);
+                    } catch (CameraAccessException e) {
+                        e.printStackTrace();
+                    }
+
                 }
 
                 @Override
