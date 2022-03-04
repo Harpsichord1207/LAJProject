@@ -75,6 +75,7 @@ public class RokidActivity extends AppCompatActivity {
         javaCameraView.setCvCameraViewListener(new CameraBridgeViewBase.CvCameraViewListener2() {
             @Override
             public void onCameraViewStarted(int width, int height) {
+                // TODO: 分辨率不对的问题
                 mRgba = new Mat();
                 if (width < 1000) {
                     // Rokid 只有640x480的分辨率 minSize 得小一点

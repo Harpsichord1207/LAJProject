@@ -10,9 +10,17 @@
         app:accuracy="0.5"
         android:id="@+id/alpha_movie_test"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintHeight_percent="0.95"
+        app:layout_constraintHeight_percent="0.45"
         android:layout_width="match_parent"
         android:layout_height="0dp" />
+
+    <VideoView
+        android:id="@+id/local_mov_test"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/change_alpha_seekbar"
+        app:layout_constraintHeight_percent="0.45" />
 
     <SeekBar
         android:id="@+id/change_alpha_seekbar"

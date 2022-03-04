@@ -4,17 +4,21 @@ import android.content.Context;
 import android.net.Uri;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
+import android.os.Environment;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.Surface;
 import android.view.View;
 import android.widget.SeekBar;
 import android.widget.Toast;
+import android.widget.VideoView;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 //import com.alphamovie.lib.AlphaMovieView;
+import java.io.File;
+
 import cn.harpsichord.lajproject.CIGAlphaMovie.AlphaMovieView;
 import cn.harpsichord.lajproject.CIGAlphaMovie.VideoRenderer;
 
@@ -51,13 +55,20 @@ public class OpenGLActivity extends AppCompatActivity {
             }
         });
 
-        Log.i(TAG, "Point 1");
+        // 手机文件管理器的根目录
+        // File dir = Environment.getExternalStorageDirectory();
+        // File f = new File(dir, "cczs.mov");
+
+        String videoFilePath = "android.resource://" + getPackageName() + "/" + R.raw.cczs;
+
+
         alphaMovieView = findViewById(R.id.alpha_movie_test);
-        Log.i(TAG, "Point 2");
-        alphaMovieView.setVideoByUrl(alphaVideoUri);  // stuck here for waiting video load?
-        Log.i(TAG, "Point 3");
+        // alphaMovieView.setVideoFromUri(this, Uri.parse(videoFilePath));  // stuck here for waiting video load?
+        alphaMovieView.setVideoByUrl(alphaVideoUri);
         alphaMovieView.start();
-        Log.i(TAG, "Point 4");
+        VideoView videoView = findViewById(R.id.local_mov_test);
+        videoView.setVideoURI(Uri.parse(videoFilePath));
+        videoView.start();
     }
 
     @Override
