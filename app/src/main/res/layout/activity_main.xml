@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
+    android:id="@+id/MainActivity"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MainActivity">
@@ -75,21 +76,19 @@
 
     <Button
         app:layout_constraintTop_toBottomOf="@id/voice_button"
-        app:layout_constraintRight_toLeftOf="@id/Rokid_native_btn"
         android:id="@+id/Rokid_btn"
         android:text="ROKID"
-        app:layout_constraintWidth_percent="0.5"
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
-    <Button
-        app:layout_constraintTop_toBottomOf="@id/voice_button"
-        app:layout_constraintLeft_toRightOf="@id/Rokid_btn"
-        android:id="@+id/Rokid_native_btn"
-        android:text="ROKID_NATIVE"
-        app:layout_constraintWidth_percent="0.5"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content" />
+<!--    <Button-->
+<!--        app:layout_constraintTop_toBottomOf="@id/voice_button"-->
+<!--        app:layout_constraintLeft_toRightOf="@id/Rokid_btn"-->
+<!--        android:id="@+id/Rokid_native_btn"-->
+<!--        android:text="ROKID_NATIVE"-->
+<!--        app:layout_constraintWidth_percent="0.5"-->
+<!--        android:layout_width="0dp"-->
+<!--        android:layout_height="wrap_content" />-->
 
     <Button
         app:layout_constraintTop_toBottomOf="@id/Rokid_btn"

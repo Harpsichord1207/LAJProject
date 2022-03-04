@@ -16,7 +16,7 @@
         android:layout_width="1dp"
         android:layout_height="1dp" />
 
-    <com.alphamovie.lib.AlphaMovieView
+    <VideoView
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:accuracy="0.5"

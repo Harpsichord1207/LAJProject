@@ -1,9 +1,12 @@
 package cn.harpsichord.lajproject;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.ButtonBarLayout;
+import androidx.constraintlayout.widget.ConstraintLayout;
 
 import android.content.Intent;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
@@ -66,6 +69,9 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        Log.w(TAG, "Product Name: " + Build.PRODUCT);
+        // boolean isRokid = "msm8998".equalsIgnoreCase(Build.PRODUCT);
+
         Button button = findViewById(R.id.test_button);
         TextView textView = findViewById(R.id.test_text);
         bar = findViewById(R.id.download_progress_bar);
@@ -122,11 +128,6 @@ public class MainActivity extends AppCompatActivity {
         rokidBtn.setOnClickListener(v -> {
             Intent intent = new Intent(this, RokidActivity.class);
             startActivity(intent);
-        });
-
-        Button rokidNativeBtn = findViewById(R.id.Rokid_native_btn);
-        rokidNativeBtn.setOnClickListener(v -> {
-            startActivity(new Intent(this, RokidNativeCameraTest.class));
         });
 
         Button cigLogoBtn = findViewById(R.id.find_cig_data_button);

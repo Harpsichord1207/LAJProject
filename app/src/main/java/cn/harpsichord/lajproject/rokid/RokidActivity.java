@@ -3,12 +3,14 @@ package cn.harpsichord.lajproject.rokid;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.VideoView;
 
 import com.alphamovie.lib.AlphaMovieView;
 
@@ -33,7 +35,8 @@ public class RokidActivity extends AppCompatActivity {
 
     public CascadeClassifier cascadeClassifier;
     private final String TAG = "ROKID";
-    private AlphaMovieView videoView;
+    // private AlphaMovieView videoView;
+    private VideoView videoView;
 
     private Mat mRgba;
     private Size minSize;
@@ -58,15 +61,9 @@ public class RokidActivity extends AppCompatActivity {
 
         // Find All Views
         videoView = findViewById(R.id.front_video_over_camera_rokid);
-        videoView.setVideoByUrl(alphaVideoUri);
-        // 看源码发现默认就一直looping
-        videoView.setLooping(false);
-        videoView.setOnVideoEndedListener(() -> {
-            videoStatus = RokidEnum.VideoStatus.AfterPlay;
-            videoView.stop();
-            runOnUiThread(() -> {videoView.setVisibility(View.INVISIBLE);});
-        });
-
+        // videoView.setVideoByUrl(alphaVideoUri);
+        // TODO: 这个视频就不用AlphaMovie了
+        videoView.setVideoURI(Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.cczs));
         showTextView = findViewById(R.id.show_target_text);
         targetShowImageView = findViewById(R.id.show_target_image);
         fullShowImageView = findViewById(R.id.show_full_image);
