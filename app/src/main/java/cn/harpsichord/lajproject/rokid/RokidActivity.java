@@ -63,7 +63,7 @@ public class RokidActivity extends AppCompatActivity {
         videoView = findViewById(R.id.front_video_over_camera_rokid);
         // videoView.setVideoByUrl(alphaVideoUri);
         // TODO: 这个视频就不用AlphaMovie了
-        videoView.setVideoURI(Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.cczs));
+        videoView.setVideoURI(Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.cczs_v1));
         showTextView = findViewById(R.id.show_target_text);
         targetShowImageView = findViewById(R.id.show_target_image);
         fullShowImageView = findViewById(R.id.show_full_image);
