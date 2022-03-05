@@ -27,6 +27,7 @@
         android:layout_height="wrap_content" />
 
     <LinearLayout
+        android:paddingLeft="30dp"
         android:id="@+id/help_info"
         android:elevation="2dp"
         app:layout_constraintLeft_toLeftOf="parent"
@@ -36,9 +37,9 @@
 
         <TextView
             android:id="@+id/show_target_text"
-            android:text="识别目标中..."
+            android:text="识别场景1: 27F前台..."
             android:textSize="24sp"
-            android:textColor="#CC1A73E8"
+            android:textColor="#FFEB3B"
             android:padding="5dp"
             android:layout_width="wrap_content"
             android:layout_height="40dp" />
@@ -57,5 +58,36 @@
 
     </LinearLayout>
 
+    <LinearLayout
+        android:paddingLeft="30dp"
+        android:id="@+id/help_info_2"
+        android:elevation="2dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/help_info"
+        android:layout_width="wrap_content"
+        android:layout_height="40dp">
+
+        <TextView
+            android:id="@+id/show_target_text_2"
+            android:text="识别场景2: 27F展板..."
+            android:textSize="24sp"
+            android:textColor="#FFEB3B"
+            android:padding="5dp"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp" />
+
+        <ImageView
+            android:padding="5dp"
+            android:id="@+id/show_target_image_2"
+            android:layout_width="40dp"
+            android:layout_height="40dp" />
+
+        <ImageView
+            android:padding="5dp"
+            android:id="@+id/show_full_image_2"
+            android:layout_width="40dp"
+            android:layout_height="40dp" />
+
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

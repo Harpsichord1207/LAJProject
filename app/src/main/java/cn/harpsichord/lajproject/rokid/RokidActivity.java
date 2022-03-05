@@ -3,11 +3,13 @@ package cn.harpsichord.lajproject.rokid;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.graphics.Bitmap;
+import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.VideoView;
@@ -50,6 +52,10 @@ public class RokidActivity extends AppCompatActivity {
     private ImageView targetShowImageView;
     private ImageView fullShowImageView;
 
+    private LinearLayout linearLayout1;
+    private LinearLayout linearLayout2;
+    private LinearLayout linearLayout3;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -61,14 +67,17 @@ public class RokidActivity extends AppCompatActivity {
 
         // Find All Views
         videoView = findViewById(R.id.front_video_over_camera_rokid);
-        // videoView.setVideoByUrl(alphaVideoUri);
-        // TODO: 这个视频就不用AlphaMovie了
         videoView.setVideoURI(Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.cczs_v1));
         showTextView = findViewById(R.id.show_target_text);
         targetShowImageView = findViewById(R.id.show_target_image);
         fullShowImageView = findViewById(R.id.show_full_image);
 
+        linearLayout1 = findViewById(R.id.help_info);
+        linearLayout2 = findViewById(R.id.help_info_2);
+        linearLayout2.setVisibility(View.GONE);
+
         JavaCamera2View javaCameraView = findViewById(R.id.JavaCamera2View2Rokid);
+        javaCameraView.setMaxFrameSize(1280, 1920);
         javaCameraView.setCvCameraViewListener(new CameraBridgeViewBase.CvCameraViewListener2() {
             @Override
             public void onCameraViewStarted(int width, int height) {
@@ -120,6 +129,11 @@ public class RokidActivity extends AppCompatActivity {
         }
         javaCameraView.setCameraPermissionGranted();
         javaCameraView.enableView();
+
+        videoView.setOnCompletionListener(mp -> {
+            videoView.setVisibility(View.GONE);
+            linearLayout2.setVisibility(View.VISIBLE);
+        });
     }
 
     private Mat detectTarget(Mat matSrc, boolean detect){
@@ -154,7 +168,7 @@ public class RokidActivity extends AppCompatActivity {
 
                         targetShowImageView.setImageBitmap(bitmap);
                         fullShowImageView.setImageBitmap(bitmap2);
-                        showTextView.setText("识别到目标：");
+                        showTextView.setText("识别场景1: 27F前台完成");
                     }
             );
             playVideo();
