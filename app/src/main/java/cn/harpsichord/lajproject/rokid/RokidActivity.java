@@ -162,18 +162,12 @@ public class RokidActivity extends AppCompatActivity {
             runOnUiThread(() ->
                     {
                         Bitmap bitmap = Bitmap.createBitmap(rect.width, rect.height, Bitmap.Config.ARGB_8888);
-                        Log.w("BP", "1");
                         // 截取识别到的图像
                         Utils.matToBitmap(cloneMat.submat(rect), bitmap);
-                        Log.w("BP", "2");
                         Bitmap bitmap2 = Bitmap.createBitmap(cloneMat.width(), cloneMat.height(), Bitmap.Config.ARGB_8888);
-                        Log.w("BP", "3");
                         Utils.matToBitmap(cloneMat, bitmap2);
-                        Log.w("BP", "4");
                         targetShowImageView.setImageBitmap(bitmap);
-                        Log.w("BP", "5");
                         fullShowImageView.setImageBitmap(bitmap2);
-                        Log.w("BP", "6");
                         showTextView.setText("识别场景1: 27F前台完成");
                     }
             );
