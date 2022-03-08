@@ -102,6 +102,7 @@ public class RokidActivity extends AppCompatActivity {
         videoView.setOnCompletionListener(mp -> {
             videoView.setVisibility(View.GONE);
             linearLayout2.setVisibility(View.VISIBLE);
+            rokidStatus = RokidEnum.RokidStatus.s10;
         });
 
         linearLayout2.setVisibility(View.GONE);
@@ -183,20 +184,26 @@ public class RokidActivity extends AppCompatActivity {
         MatOfRect targets = new MatOfRect();
         // TODO: 这些参数是否可以再优化？
         cascadeClassifier.detectMultiScale(matGray, targets, 1.2, 3, 0, minSize, maxSize);
+
         List<Rect> targetList = targets.toList();
+
+        // TODO: 不释放掉内存一直涨，但之前没这个问题呀？
+        matGray.release();
+        targets.release();
 
         if (targetList.size() == 0) {
             return matSrc;
         }
 
         detectCount ++;
+        Log.w(TAG, "Stage: " + rokidStatus +", " + detectCount + "/" + ContinueDetectCount);
         if (detectCount >= ContinueDetectCount) {
             for (Rect rect: targetList) {
                 Imgproc.rectangle(matSrc, rect.tl(), rect.br(), new Scalar(255, 0, 0, 255), 5);
             }
             triggerAction(matSrc.clone(), targetList.get(0));
+            detectCount = 0;
         }
-        Log.w(TAG, "Stage: " + rokidStatus +", " + detectCount + "/" + ContinueDetectCount);
         return matSrc;
     }
 
@@ -215,8 +222,7 @@ public class RokidActivity extends AppCompatActivity {
     }
 
     private void triggerAction(Mat cloneMat, Rect rect) {
-        detectCount = 0;
-
+        Log.w(TAG, "Start Action with status: " + rokidStatus);
         // 触发场景1
         if (rokidStatus == RokidEnum.RokidStatus.s00) {
             runOnUiThread(() -> {
@@ -233,7 +239,6 @@ public class RokidActivity extends AppCompatActivity {
                 rokidStatus = RokidEnum.RokidStatus.s01;
             });
         }
-
     }
 
 }

@@ -12,7 +12,7 @@ public class RokidEnum {
         if (rokidStatus == RokidStatus.s00) {
             return true;
         }
-        if (rokidStatus == RokidStatus.s01) {
+        if (rokidStatus == RokidStatus.s10) {
             return true;
         }
         return false;
