@@ -4,7 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.media.MediaPlayer;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -16,7 +16,14 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.VideoView;
 
-import com.alphamovie.lib.AlphaMovieView;
+import com.iflytek.cloud.RecognizerListener;
+import com.iflytek.cloud.RecognizerResult;
+import com.iflytek.cloud.SpeechConstant;
+import com.iflytek.cloud.SpeechError;
+import com.iflytek.cloud.SpeechRecognizer;
+import com.iflytek.cloud.SpeechSynthesizer;
+import com.iflytek.cloud.SpeechUtility;
+import com.iflytek.cloud.SynthesizerListener;
 
 import org.opencv.android.CameraBridgeViewBase;
 import org.opencv.android.JavaCamera2View;
@@ -38,6 +45,7 @@ import cn.harpsichord.lajproject.R;
 public class RokidActivity extends AppCompatActivity {
 
     public CascadeClassifier cascadeClassifier;
+    private SpeechRecognizer speechRecognizer;
     private final String TAG = "ROKID";
 
     private Mat mRgba;
@@ -46,6 +54,8 @@ public class RokidActivity extends AppCompatActivity {
 
     private JavaCamera2View javaCameraView;
     private VideoView videoView;
+    private ImageView pic1;
+    private TextView nextHintText;
 
     private LinearLayout linearLayout1;
     private TextView showTextView;
@@ -80,7 +90,9 @@ public class RokidActivity extends AppCompatActivity {
         // All views
         javaCameraView = findViewById(R.id.JavaCamera2View2Rokid);
         videoView = findViewById(R.id.front_video_over_camera_rokid);
-
+        pic1 = findViewById(R.id.trigger_image_1);
+        nextHintText = findViewById(R.id.next_text_hint);
+        
         linearLayout1 = findViewById(R.id.help_info);
         showTextView = findViewById(R.id.show_target_text);
         targetShowImageView = findViewById(R.id.show_target_image);
@@ -95,6 +107,8 @@ public class RokidActivity extends AppCompatActivity {
         showTextView3 = findViewById(R.id.show_target_text_3);
         targetShowImageView3 = findViewById(R.id.show_target_image_3);
         fullShowImageView3 = findViewById(R.id.show_full_image_3);
+
+        SpeechUtility.createUtility(context, SpeechConstant.APPID +"=cc41d66f");
     }
 
     private void configViews(Context context) {
@@ -129,6 +143,7 @@ public class RokidActivity extends AppCompatActivity {
 
             @Override
             public Mat onCameraFrame(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
+                mRgba.release();
                 mRgba = inputFrame.rgba();
                 return detectTarget(mRgba, checkIfDetect());
             }
@@ -166,7 +181,6 @@ public class RokidActivity extends AppCompatActivity {
             Log.e(TAG, "Failed to load OpenCV!");
             finish();
         }
-
 
     }
 
@@ -223,6 +237,7 @@ public class RokidActivity extends AppCompatActivity {
 
     private void triggerAction(Mat cloneMat, Rect rect) {
         Log.w(TAG, "Start Action with status: " + rokidStatus);
+        // TODO: 复用公共代码
         // 触发场景1
         if (rokidStatus == RokidEnum.RokidStatus.s00) {
             rokidStatus = RokidEnum.RokidStatus.s01;
@@ -250,9 +265,132 @@ public class RokidActivity extends AppCompatActivity {
                 targetShowImageView2.setImageBitmap(bitmap);
                 fullShowImageView2.setImageBitmap(bitmap2);
                 showTextView2.setText("识别场景2: 27F展板1完成");
+                pic1.setVisibility(View.VISIBLE);
+                pic1.setAlpha(.4f);
+
+                String text = "比特视界(北京)科技有限公司(英文简称: BITONE)，成立于2009年，为新意互动旗下子公司，总部位于北京，在上海、底特律(美国)，均设有分支机构。";
+                text += "自2009年成立以来，BITONE 已在汽车虚拟影像领域深耕10余年，成为汽车行业备受认可的虚拟影像品牌。";
+                text += "我们采用高端计算机图像技术与富有创意的产品可视化方案结合、全数字技术与真实拍摄结合等方式，";
+                text += "为客户输出包括数字CG影像、AR/VR虚拟互动体验、沉浸式数字运营整体解决方案以及数字演员等虚拟影像应用解决方案。";
+                text += "用于发布会、车展、TVC广告、交互体验等一系列品牌展示及整合营销中，帮助客户重塑品牌与视觉定位，抢占展览体验及市场营销先机，吸引潜在受众。";
+
+                speakText(text, RokidEnum.RokidStatus.s12);
                 cloneMat.release();
             });
         }
+    }
+
+    private void speakText(String text, RokidEnum.RokidStatus finishStatus) {
+
+        // TODO: stop after quit activity?
+        SpeechSynthesizer synthesizer = SpeechSynthesizer.createSynthesizer(RokidActivity.this, null);
+        synthesizer.setParameter(SpeechConstant.VOICE_NAME, "xiaoyan");
+        synthesizer.setParameter(SpeechConstant.SPEED, "50");
+        synthesizer.setParameter(SpeechConstant.VOLUME, "100");
+        synthesizer.setParameter(SpeechConstant.ENGINE_TYPE, SpeechConstant.TYPE_CLOUD);
+
+        SynthesizerListener synthesizerListener = new SynthesizerListener() {
+            @Override
+            public void onSpeakBegin() {
+
+            }
+
+            @Override
+            public void onBufferProgress(int i, int i1, int i2, String s) {
+
+            }
+
+            @Override
+            public void onSpeakPaused() {
+
+            }
+
+            @Override
+            public void onSpeakResumed() {
+
+            }
+
+            @Override
+            public void onSpeakProgress(int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onCompleted(SpeechError speechError) {
+                if (speechError != null) {
+                    Log.e(TAG, "Speak Error:  " + speechError);
+                } else {
+                    rokidStatus = finishStatus;
+                    if (finishStatus == RokidEnum.RokidStatus.s12) {
+                        nextHintText.setVisibility(View.VISIBLE);
+                        speakText("请说下一个播放新展板", RokidEnum.RokidStatus.s13);
+                    } else if (finishStatus == RokidEnum.RokidStatus.s13) {
+                        // 开启语音识别
+                        listenText("下一个", RokidEnum.RokidStatus.s14);
+                    } else if (finishStatus == RokidEnum.RokidStatus.s15) {
+                        linearLayout3.setVisibility(View.VISIBLE);
+                        pic1.setVisibility(View.GONE);
+                    }
+                }
+            }
+
+            @Override
+            public void onEvent(int i, int i1, int i2, Bundle bundle) {
+
+            }
+        };
+        synthesizer.startSpeaking(text, synthesizerListener);
+    }
+
+    private void listenText(String stopKeyword, RokidEnum.RokidStatus stopStatus){
+        speechRecognizer = SpeechRecognizer.createRecognizer(RokidActivity.this, i -> Log.w(TAG, "SpeechRecognizer Init!"));
+        speechRecognizer.setParameter(SpeechConstant.RESULT_TYPE, "plain");
+        speechRecognizer.setParameter(SpeechConstant.VAD_EOS, "3000");
+        speechRecognizer.startListening(new RecognizerListener() {
+            @Override
+            public void onVolumeChanged(int i, byte[] bytes) {
+
+            }
+
+            @Override
+            public void onBeginOfSpeech() {
+
+            }
+
+            @Override
+            public void onEndOfSpeech() {
+
+            }
+
+            @Override
+            public void onResult(RecognizerResult recognizerResult, boolean b) {
+                String resultString = recognizerResult.getResultString();
+                Log.w(TAG, "Current Recognize Result: " + resultString);
+                if (resultString.contains(stopKeyword.trim())) {
+                    Log.w(TAG, "SpeechRecognizer got keyword!!!");
+                    speechRecognizer.stopListening();
+                    rokidStatus = stopStatus;
+                    // TODO Trigger S13 图文播放
+                    Toast.makeText(RokidActivity.this, "Current Status: " + rokidStatus, Toast.LENGTH_LONG).show();
+                    runOnUiThread(()->{
+                        nextHintText.setVisibility(View.GONE);
+                        pic1.setImageBitmap(BitmapFactory.decodeResource(RokidActivity.this.getResources(), R.drawable.bigdata_pic));
+                        String text = "CIG大数据及应用聚焦于汽车营销垂直领域，以受众数据为基础，整合线上媒介行为数据、汽车类垂直类型媒体数据、腾讯类社交娱乐数据，以及其他互联网公开数据，整合成自有的中国汽车受众数据中心（CAA），通过自研技术、算法和AI能力，搭建了服务于全数字营销链条的应用服务体系，包括数据即服务（DAAS）、信息即服务（IAAS）、结果即服务（AAAS）。";
+                        speakText(text, RokidEnum.RokidStatus.s15);
+                    });
+                }
+            }
+
+            @Override
+            public void onError(SpeechError speechError) {
+                Log.w(TAG, "Listen Error: " + speechError);
+            }
+
+            @Override
+            public void onEvent(int i, int i1, int i2, Bundle bundle) {
+
+            }
+        });
     }
 
 }
