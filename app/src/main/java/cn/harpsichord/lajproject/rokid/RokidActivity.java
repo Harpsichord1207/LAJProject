@@ -151,6 +151,7 @@ public class RokidActivity extends AppCompatActivity {
         javaCameraView.setCvCameraViewListener(listener2);
         javaCameraView.setCameraPermissionGranted();
         javaCameraView.enableView();
+        // listenText("下一个", RokidEnum.RokidStatus.s15);
 
     }
 
@@ -342,7 +343,8 @@ public class RokidActivity extends AppCompatActivity {
         synthesizer.startSpeaking(text, synthesizerListener);
     }
 
-    private void listenText(String stopKeyword, RokidEnum.RokidStatus stopStatus){
+    private void listenText(String stopKeyword, RokidEnum.RokidStatus stopStatus) {
+        final boolean[] catchKey = {false};
         speechRecognizer = SpeechRecognizer.createRecognizer(RokidActivity.this, i -> Log.w(TAG, "SpeechRecognizer Init!"));
         speechRecognizer.setParameter(SpeechConstant.RESULT_TYPE, "plain");
         speechRecognizer.setParameter(SpeechConstant.VAD_EOS, "3000");
@@ -359,7 +361,10 @@ public class RokidActivity extends AppCompatActivity {
 
             @Override
             public void onEndOfSpeech() {
-
+                if (!catchKey[0]) {
+                    Log.w(TAG, "not catch key will listen again!!!");
+                    listenText(stopKeyword, stopStatus);
+                }
             }
 
             @Override
@@ -367,6 +372,7 @@ public class RokidActivity extends AppCompatActivity {
                 String resultString = recognizerResult.getResultString();
                 Log.w(TAG, "Current Recognize Result: " + resultString);
                 if (resultString.contains(stopKeyword.trim())) {
+                    catchKey[0] = true;
                     Log.w(TAG, "SpeechRecognizer got keyword!!!");
                     speechRecognizer.stopListening();
                     rokidStatus = stopStatus;
@@ -384,6 +390,11 @@ public class RokidActivity extends AppCompatActivity {
             @Override
             public void onError(SpeechError speechError) {
                 Log.w(TAG, "Listen Error: " + speechError);
+                if (speechError != null && speechError.toString().contains("10118")) {
+                    // 没有说话时再次listen
+                    Log.w(TAG, "10118 will listen again!!!");
+                    listenText(stopKeyword, stopStatus);
+                }
             }
 
             @Override
