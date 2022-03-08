@@ -2,6 +2,7 @@ package cn.harpsichord.lajproject.rokid;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.media.MediaPlayer;
 import android.net.Uri;
@@ -38,52 +39,77 @@ public class RokidActivity extends AppCompatActivity {
 
     public CascadeClassifier cascadeClassifier;
     private final String TAG = "ROKID";
-    // private AlphaMovieView videoView;
-    private VideoView videoView;
 
     private Mat mRgba;
     private Size minSize;
     private Size maxSize;
-    private long frameCount = 0;
-    private List<Rect> targetList;
-    private RokidEnum.VideoStatus videoStatus = RokidEnum.VideoStatus.BeforePlay;
-    private TextView showTextView;
 
-    private static final String alphaVideoUri = "https://cig-test.s3.cn-north-1.amazonaws.com.cn/liutao/CIGAR/media/alpha_channel_test.mp4";
+    private JavaCamera2View javaCameraView;
+    private VideoView videoView;
+
+    private LinearLayout linearLayout1;
+    private TextView showTextView;
     private ImageView targetShowImageView;
     private ImageView fullShowImageView;
 
-    private LinearLayout linearLayout1;
     private LinearLayout linearLayout2;
+    private TextView showTextView2;
+    private ImageView targetShowImageView2;
+    private ImageView fullShowImageView2;
+
     private LinearLayout linearLayout3;
+    private TextView showTextView3;
+    private ImageView targetShowImageView3;
+    private ImageView fullShowImageView3;
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_rokid);
+    // 每隔几帧检测一次降低CPU压力
+    private final int FrameSkip = 5;
+    // 连续几次都检测到目标才认为到达指定场景
+    private final int ContinueDetectCount = 2;
+    private int frameCount = 0;
+    private int detectCount = 0;
 
+    private RokidEnum.RokidStatus rokidStatus = RokidEnum.RokidStatus.s00;
+
+    private void init(Context context) {
         // Window Manager
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
-        // Find All Views
+
+        // All views
+        javaCameraView = findViewById(R.id.JavaCamera2View2Rokid);
         videoView = findViewById(R.id.front_video_over_camera_rokid);
-        videoView.setVideoURI(Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.cczs_v1));
+
+        linearLayout1 = findViewById(R.id.help_info);
         showTextView = findViewById(R.id.show_target_text);
         targetShowImageView = findViewById(R.id.show_target_image);
         fullShowImageView = findViewById(R.id.show_full_image);
 
-        linearLayout1 = findViewById(R.id.help_info);
         linearLayout2 = findViewById(R.id.help_info_2);
-        linearLayout2.setVisibility(View.GONE);
+        showTextView2 = findViewById(R.id.show_target_text_2);
+        targetShowImageView2 = findViewById(R.id.show_target_image_2);
+        fullShowImageView2 = findViewById(R.id.show_full_image_2);
 
-        JavaCamera2View javaCameraView = findViewById(R.id.JavaCamera2View2Rokid);
-//        javaCameraView.setCameraIndex(1);
-//        javaCameraView.setMaxFrameSize(1280, 1920);
-        javaCameraView.setCvCameraViewListener(new CameraBridgeViewBase.CvCameraViewListener2() {
+        linearLayout3 = findViewById(R.id.help_info_3);
+        showTextView3 = findViewById(R.id.show_target_text_3);
+        targetShowImageView3 = findViewById(R.id.show_target_image_3);
+        fullShowImageView3 = findViewById(R.id.show_full_image_3);
+    }
+
+    private void configViews(Context context) {
+        videoView.setVideoURI(Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.cczs_v1));
+        videoView.setOnCompletionListener(mp -> {
+            videoView.setVisibility(View.GONE);
+            linearLayout2.setVisibility(View.VISIBLE);
+        });
+
+        linearLayout2.setVisibility(View.GONE);
+        linearLayout3.setVisibility(View.GONE);
+
+        CameraBridgeViewBase.CvCameraViewListener2 listener2 = new CameraBridgeViewBase.CvCameraViewListener2() {
             @Override
             public void onCameraViewStarted(int width, int height) {
-                // TODO: 分辨率不对的问题
                 mRgba = new Mat();
                 if (width < 1000) {
                     // Rokid 只有640x480的分辨率 minSize 得小一点
@@ -92,7 +118,7 @@ public class RokidActivity extends AppCompatActivity {
                     minSize = new Size(150, 150);
                 }
                 maxSize = new Size();
-                Toast.makeText(RokidActivity.this, "Camera Started: " + width + "x" + height, Toast.LENGTH_LONG).show();
+                Log.w(TAG, "Current Resolution: " + width + " X " + height);
             }
 
             @Override
@@ -103,89 +129,111 @@ public class RokidActivity extends AppCompatActivity {
             @Override
             public Mat onCameraFrame(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
                 mRgba = inputFrame.rgba();
-                frameCount ++;
-                boolean detect = true;
-                int skip = 5;
-                if (frameCount % skip != 0) {
-                    // 如果开启了检测，每skip帧检测一次，其他帧滞留原来的结果
-                    detect = false;
-                } else {
-                    frameCount = 0;
-                }
-                // Log.w(TAG, "Mat Size: " + mRgba.size());
-                return detectTarget(mRgba, detect);
+                return detectTarget(mRgba, checkIfDetect());
             }
-        });
-
-        if (!OpenCVLoader.initDebug()) {
-            Toast.makeText(RokidActivity.this, "Failed to init OpenCV!", Toast.LENGTH_SHORT).show();
-            finish();
-        } else {
-            try {
-                cascadeClassifier = RokidClassifier.loadCascadeClassifier(this);
-            } catch (IOException e) {
-                Toast.makeText(RokidActivity.this, "Failed to getClassifier!", Toast.LENGTH_SHORT).show();
-                e.printStackTrace();
-                finish();
-            }
-        }
+        };
+        javaCameraView.setCvCameraViewListener(listener2);
         javaCameraView.setCameraPermissionGranted();
         javaCameraView.enableView();
 
-        videoView.setOnCompletionListener(mp -> {
-            videoView.setVisibility(View.GONE);
-            linearLayout2.setVisibility(View.VISIBLE);
-        });
+    }
+
+    private boolean loadOpenCV(Context context) {
+        if (!OpenCVLoader.initDebug()) {
+            return false;
+        }
+
+        try {
+            cascadeClassifier = RokidClassifier.loadCascadeClassifier(context);
+        } catch (IOException e) {
+            Log.w(TAG, "Failed to load classifier: " + e);
+            return false;
+        }
+
+        return true;
+    }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_rokid);
+
+        init(this);
+        configViews(this);
+
+        if (!loadOpenCV(this)) {
+            Log.e(TAG, "Failed to load OpenCV!");
+            finish();
+        }
+
+
     }
 
     private Mat detectTarget(Mat matSrc, boolean detect){
-        if (detect) {
-            Mat matGray = new Mat();
-            Imgproc.cvtColor(matSrc, matGray, Imgproc.COLOR_BGRA2GRAY);
-            MatOfRect targets = new MatOfRect();
-            cascadeClassifier.detectMultiScale(matGray, targets, 1.2, 3, 0, minSize, maxSize);
-            targetList = targets.toList();
-        }
-        if (targetList == null) {
+
+        // 为了减轻计算压力，可以每隔几帧检测一次，不检测的帧滞留结果
+        // 不过现在是检测到就触发播放视频/图片，所以不需要滞留了，之前的逻辑可以参考git变化记录
+
+        if (!detect) {
             return matSrc;
         }
 
-        for (Rect rect: targetList) {
-            Imgproc.rectangle(matSrc, rect.tl(), rect.br(), new Scalar(255, 0, 0, 255), 5);
+        Mat matGray = new Mat();
+        Imgproc.cvtColor(matSrc, matGray, Imgproc.COLOR_BGRA2GRAY);
+        MatOfRect targets = new MatOfRect();
+        // TODO: 这些参数是否可以再优化？
+        cascadeClassifier.detectMultiScale(matGray, targets, 1.2, 3, 0, minSize, maxSize);
+        List<Rect> targetList = targets.toList();
+
+        if (targetList.size() == 0) {
+            return matSrc;
         }
 
-        if (targetList.size() > 0 && videoStatus == RokidEnum.VideoStatus.BeforePlay) {
-            Rect rect = targetList.get(0);
-
-            // 在另一个Thread中运行，matSrc可能已经不是原来那个了，因此要copy一个出来
-            Mat cloneMat = matSrc.clone();
-            runOnUiThread(() ->
-                    {
-                        Bitmap bitmap = Bitmap.createBitmap(rect.width, rect.height, Bitmap.Config.ARGB_8888);
-                        // 截取识别到的图像
-                        Utils.matToBitmap(cloneMat.submat(rect), bitmap);
-                        Bitmap bitmap2 = Bitmap.createBitmap(cloneMat.width(), cloneMat.height(), Bitmap.Config.ARGB_8888);
-                        Utils.matToBitmap(cloneMat, bitmap2);
-                        targetShowImageView.setImageBitmap(bitmap);
-                        fullShowImageView.setImageBitmap(bitmap2);
-                        showTextView.setText("识别场景1: 27F前台完成");
-                    }
-            );
-            playVideo();
+        detectCount ++;
+        if (detectCount >= ContinueDetectCount) {
+            for (Rect rect: targetList) {
+                Imgproc.rectangle(matSrc, rect.tl(), rect.br(), new Scalar(255, 0, 0, 255), 5);
+            }
+            triggerAction(matSrc.clone(), targetList.get(0));
         }
-
+        Log.w(TAG, "Stage: " + rokidStatus +", " + detectCount + "/" + ContinueDetectCount);
         return matSrc;
     }
 
-    private void playVideo() {
-        runOnUiThread(() -> {
-            // 一开始使用本地视频时，需要videoView.getMediaPlayer().reset();
-            // 改为通过url播放远端视频，在View的onCreate方法里setVideoByUrl，不再需要reset MediaPlayer
+    private boolean checkIfDetect() {
+        // 如果不是场景的开场，也不用检测
+        if (!RokidEnum.isNewStage(rokidStatus)) {
+            return false;
+        }
+        //每FrameSkip帧检测一次
+        if (frameCount % FrameSkip != 0) {
+            frameCount ++;
+            return false;
+        }
+        frameCount = 0;
+        return true;
+    }
 
-            videoView.setVisibility(View.VISIBLE);
-            videoStatus = RokidEnum.VideoStatus.Playing;
-            videoView.start();
-        });
+    private void triggerAction(Mat cloneMat, Rect rect) {
+        detectCount = 0;
+
+        // 触发场景1
+        if (rokidStatus == RokidEnum.RokidStatus.s00) {
+            runOnUiThread(() -> {
+                Bitmap bitmap = Bitmap.createBitmap(rect.width, rect.height, Bitmap.Config.ARGB_8888);
+                // 截取识别到的图像
+                Utils.matToBitmap(cloneMat.submat(rect), bitmap);
+                Bitmap bitmap2 = Bitmap.createBitmap(cloneMat.width(), cloneMat.height(), Bitmap.Config.ARGB_8888);
+                Utils.matToBitmap(cloneMat, bitmap2);
+                targetShowImageView.setImageBitmap(bitmap);
+                fullShowImageView.setImageBitmap(bitmap2);
+                showTextView.setText("识别场景1: 27F前台完成");
+                videoView.setVisibility(View.VISIBLE);
+                videoView.start();
+                rokidStatus = RokidEnum.RokidStatus.s01;
+            });
+        }
+
     }
 
 }
