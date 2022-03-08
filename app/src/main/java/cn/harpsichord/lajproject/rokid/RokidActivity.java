@@ -225,6 +225,7 @@ public class RokidActivity extends AppCompatActivity {
         Log.w(TAG, "Start Action with status: " + rokidStatus);
         // 触发场景1
         if (rokidStatus == RokidEnum.RokidStatus.s00) {
+            rokidStatus = RokidEnum.RokidStatus.s01;
             runOnUiThread(() -> {
                 Bitmap bitmap = Bitmap.createBitmap(rect.width, rect.height, Bitmap.Config.ARGB_8888);
                 // 截取识别到的图像
@@ -236,7 +237,20 @@ public class RokidActivity extends AppCompatActivity {
                 showTextView.setText("识别场景1: 27F前台完成");
                 videoView.setVisibility(View.VISIBLE);
                 videoView.start();
-                rokidStatus = RokidEnum.RokidStatus.s01;
+                cloneMat.release();
+            });
+        } else if (rokidStatus == RokidEnum.RokidStatus.s10) {
+            rokidStatus = RokidEnum.RokidStatus.s11;
+            runOnUiThread(()->{
+                Bitmap bitmap = Bitmap.createBitmap(rect.width, rect.height, Bitmap.Config.ARGB_8888);
+                // 截取识别到的图像
+                Utils.matToBitmap(cloneMat.submat(rect), bitmap);
+                Bitmap bitmap2 = Bitmap.createBitmap(cloneMat.width(), cloneMat.height(), Bitmap.Config.ARGB_8888);
+                Utils.matToBitmap(cloneMat, bitmap2);
+                targetShowImageView2.setImageBitmap(bitmap);
+                fullShowImageView2.setImageBitmap(bitmap2);
+                showTextView2.setText("识别场景2: 27F展板1完成");
+                cloneMat.release();
             });
         }
     }

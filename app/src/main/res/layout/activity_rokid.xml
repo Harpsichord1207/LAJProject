@@ -69,7 +69,7 @@
 
         <TextView
             android:id="@+id/show_target_text_2"
-            android:text="识别场景2: 27F展板..."
+            android:text="识别场景2: 27F展板1..."
             android:textSize="24sp"
             android:textColor="#FFEB3B"
             android:padding="5dp"
@@ -95,13 +95,13 @@
         android:id="@+id/help_info_3"
         android:elevation="2dp"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/help_info"
+        app:layout_constraintTop_toBottomOf="@+id/help_info_2"
         android:layout_width="wrap_content"
         android:layout_height="40dp">
 
         <TextView
             android:id="@+id/show_target_text_3"
-            android:text="识别场景3: 27F展板..."
+            android:text="识别场景3: 27F展板2..."
             android:textSize="24sp"
             android:textColor="#FFEB3B"
             android:padding="5dp"
